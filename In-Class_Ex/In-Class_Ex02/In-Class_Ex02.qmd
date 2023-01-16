@@ -16,38 +16,56 @@ First, we need to check if we have the three R packages to be used for the In-Cl
 pacman::p_load(sf, tidyverse, funModeling)
 ```
 
-#### Importing the Geospatial Dataset
+###  Importing the Geospatial Dataset
+
+#### The geoBoundaries Dataset
 
 To Import the Geospatial data, run the following code. Ensure that the directory of the files and the file name is correct.
 
 ```{r}
-NGA <- st_read("data/geospatial", 
+geoNGA <- st_read("data/geospatial", 
                   layer = "geoBoundaries-NGA-ADM2") %>%
   st_transform(crs = 26392)
 ```
 
-#### Importing the NGA Dataset
+####  Importing the NGA Dataset
 
 To Import the NGAdata, run the following code. Ensure that the directory of the files and the file name is correct.
 
-#\| code-fold: true
-
-#\| code-summary = "Show the code"
-
-evaluation = false
-
 ```{r}
-geoNGA <- st_read("data/geospatial", 
+NGA <- st_read("data/geospatial", 
                   layer = "nga_admbnda_adm2_osgof_20190417") %>%
   st_transform(crs = 26392)
 ```
 
-Importing Aspatial data
+### Importing Aspatial data
 
-Write the extracted data into rds format
+Similar to the Geospatial data, import the Aspatial data, however, remember that the data is in CSV format and hence, read_csv() must be used
 
-converting aspatial data into geospatial
+```{r}
+wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
+  filter(`#clean_country_name` == "Nigeria")
+```
 
-project transformation
+### Converting Aspatial Data into Geospatial
 
-https://is415-gaa-tskam.netlify.app/in-class_ex/in-class_ex02/in-class_ex02
+We now convert the newly extracted Aspatial data (wp_nga) into point sf dataframe using the below code.
+
+```{r}
+wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
+wp_nga
+```
+
+```{r}
+wp_sf <- st_sf(wp_nga, crs=4326)
+wp_sf
+```
+
+#### Project Transformation
+
+We now transform the projection from wgs84 to appropriate projected coordinate system of Nigeria.
+
+```{r}
+wp_sf <- wp_sf %>%
+  st_transform(crs = 26392)
+```
