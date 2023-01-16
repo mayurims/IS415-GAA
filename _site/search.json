@@ -4,13 +4,27 @@
     "href": "index.html",
     "title": "IS415-GAA",
     "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+    "text": "Welcome to  IS415 Geospatial Analyticsvs and Applications. \nThis is the course website for IS415 I study this term. You will find my course work on this website."
   },
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "In-Class Excercise",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "In-Class_Excercise.html",
+    "href": "In-Class_Excercise.html",
+    "title": "In-Class Excercise",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "Hands-on_Excercise.html",
+    "href": "Hands-on_Excercise.html",
+    "title": "IS415-GAA",
+    "section": "",
+    "text": "---\ntitle: “Hands-on Excercise”\n---"
   }
 ]
