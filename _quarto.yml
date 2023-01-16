@@ -11,14 +11,15 @@ website:
             href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html"
       - text: "In-Class Excercise"
         menu:
-          - text: "In-Class Excercise 1"
-            href: "In-Class_Ex/In-Class_Ex01/In-Class_Ex01.html"
-      
+          - text: "In-Class Excercise 2"
+            href: "In-Class_Ex/In-Class_Ex02/In-Class_Ex02.html"
           
     right: 
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: about.qmd
+        text: About
+
       
 
 format:

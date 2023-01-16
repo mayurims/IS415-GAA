@@ -1,5 +1,5 @@
 ---
-title: "In-Class Excercise"
+title: "About"
 ---
 
 About this site
