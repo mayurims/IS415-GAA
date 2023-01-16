@@ -1,0 +1,53 @@
+---
+title: "In-class Exercise 2:  Geospatial Data Wrangling with R"
+date: "`r Sys.Date()`"
+format: html
+execute:
+  message: false
+  warning: false
+editor: visual
+---
+
+#### Installing the R packages
+
+First, we need to check if we have the three R packages to be used for the In-Class Excercise (sf ,tidyverse and funModelling) installed. If not, we need to install it automatically. The below code checks if the packages are already installed, else it will install the packages for us. However, before running the below code, ensure that 'packman' package has been installed in your RStudio.
+
+```{r}
+pacman::p_load(sf, tidyverse, funModeling)
+```
+
+#### Importing the Geospatial Dataset
+
+To Import the Geospatial data, run the following code. Ensure that the directory of the files and the file name is correct.
+
+```{r}
+NGA <- st_read("data/geospatial", 
+                  layer = "geoBoundaries-NGA-ADM2") %>%
+  st_transform(crs = 26392)
+```
+
+#### Importing the NGA Dataset
+
+To Import the NGAdata, run the following code. Ensure that the directory of the files and the file name is correct.
+
+#\| code-fold: true
+
+#\| code-summary = "Show the code"
+
+evaluation = false
+
+```{r}
+geoNGA <- st_read("data/geospatial", 
+                  layer = "nga_admbnda_adm2_osgof_20190417") %>%
+  st_transform(crs = 26392)
+```
+
+Importing Aspatial data
+
+Write the extracted data into rds format
+
+converting aspatial data into geospatial
+
+project transformation
+
+https://is415-gaa-tskam.netlify.app/in-class_ex/in-class_ex02/in-class_ex02
