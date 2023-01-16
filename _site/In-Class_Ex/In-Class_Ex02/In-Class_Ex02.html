@@ -190,9 +190,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#importing-the-geospatial-dataset" id="toc-importing-the-geospatial-dataset" class="nav-link active" data-scroll-target="#importing-the-geospatial-dataset">Importing the Geospatial Dataset</a></li>
+  <li><a href="#installing-the-r-packages" id="toc-installing-the-r-packages" class="nav-link active" data-scroll-target="#installing-the-r-packages">Installing the R packages</a></li>
+  <li><a href="#importing-the-geospatial-dataset" id="toc-importing-the-geospatial-dataset" class="nav-link" data-scroll-target="#importing-the-geospatial-dataset">Importing the Geospatial Dataset</a>
+  <ul class="collapse">
+  <li><a href="#the-geoboundaries-dataset" id="toc-the-geoboundaries-dataset" class="nav-link" data-scroll-target="#the-geoboundaries-dataset">The geoBoundaries Dataset</a></li>
+  <li><a href="#importing-the-nga-dataset" id="toc-importing-the-nga-dataset" class="nav-link" data-scroll-target="#importing-the-nga-dataset">Importing the NGA Dataset</a></li>
+  </ul></li>
   <li><a href="#importing-aspatial-data" id="toc-importing-aspatial-data" class="nav-link" data-scroll-target="#importing-aspatial-data">Importing Aspatial data</a></li>
-  <li><a href="#converting-aspatial-data-into-geospatial" id="toc-converting-aspatial-data-into-geospatial" class="nav-link" data-scroll-target="#converting-aspatial-data-into-geospatial">Converting Aspatial Data into Geospatial</a></li>
+  <li><a href="#converting-aspatial-data-into-geospatial" id="toc-converting-aspatial-data-into-geospatial" class="nav-link" data-scroll-target="#converting-aspatial-data-into-geospatial">Converting Aspatial Data into Geospatial</a>
+  <ul class="collapse">
+  <li><a href="#project-transformation" id="toc-project-transformation" class="nav-link" data-scroll-target="#project-transformation">Project Transformation</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -222,17 +230,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<section id="installing-the-r-packages" class="level4">
-<h4 class="anchored" data-anchor-id="installing-the-r-packages">Installing the R packages</h4>
+<section id="installing-the-r-packages" class="level1">
+<h1>Installing the R packages</h1>
 <p>First, we need to check if we have the three R packages to be used for the In-Class Excercise (sf ,tidyverse and funModelling) installed. If not, we need to install it automatically. The below code checks if the packages are already installed, else it will install the packages for us. However, before running the below code, ensure that ‘packman’ package has been installed in your RStudio.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tidyverse, funModeling)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="importing-the-geospatial-dataset" class="level3">
-<h3 class="anchored" data-anchor-id="importing-the-geospatial-dataset">Importing the Geospatial Dataset</h3>
-<section id="the-geoboundaries-dataset" class="level4">
-<h4 class="anchored" data-anchor-id="the-geoboundaries-dataset">The geoBoundaries Dataset</h4>
+<section id="importing-the-geospatial-dataset" class="level1">
+<h1>Importing the Geospatial Dataset</h1>
+<section id="the-geoboundaries-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="the-geoboundaries-dataset">The geoBoundaries Dataset</h2>
 <p>To Import the Geospatial data, run the following code. Ensure that the directory of the files and the file name is correct.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>geoNGA <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial"</span>, </span>
@@ -250,8 +258,8 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </div>
 </section>
-<section id="importing-the-nga-dataset" class="level4">
-<h4 class="anchored" data-anchor-id="importing-the-nga-dataset">Importing the NGA Dataset</h4>
+<section id="importing-the-nga-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="importing-the-nga-dataset">Importing the NGA Dataset</h2>
 <p>To Import the NGAdata, run the following code. Ensure that the directory of the files and the file name is correct.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>NGA <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"data/geospatial"</span>, </span>
@@ -270,16 +278,16 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </section>
 </section>
-<section id="importing-aspatial-data" class="level3">
-<h3 class="anchored" data-anchor-id="importing-aspatial-data">Importing Aspatial data</h3>
+<section id="importing-aspatial-data" class="level1">
+<h1>Importing Aspatial data</h1>
 <p>Similar to the Geospatial data, import the Aspatial data, however, remember that the data is in CSV format and hence, read_csv() must be used</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>wp_nga <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/WPdx.csv"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">#clean_country_name</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Nigeria"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="converting-aspatial-data-into-geospatial" class="level3">
-<h3 class="anchored" data-anchor-id="converting-aspatial-data-into-geospatial">Converting Aspatial Data into Geospatial</h3>
+<section id="converting-aspatial-data-into-geospatial" class="level1">
+<h1>Converting Aspatial Data into Geospatial</h1>
 <p>We now convert the newly extracted Aspatial data (wp_nga) into point sf dataframe using the below code.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wp_nga<span class="sc">$</span>Geometry <span class="ot">=</span> <span class="fu">st_as_sfc</span>(wp_nga<span class="sc">$</span><span class="st">`</span><span class="at">New Georeferenced Column</span><span class="st">`</span>)</span>
@@ -338,8 +346,8 @@ Geodetic CRS:  WGS 84
 #   `#fecal_coliform_value` &lt;dbl&gt;, `#subjective_quality` &lt;chr&gt;, …</code></pre>
 </div>
 </div>
-<section id="project-transformation" class="level4">
-<h4 class="anchored" data-anchor-id="project-transformation">Project Transformation</h4>
+<section id="project-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="project-transformation">Project Transformation</h2>
 <p>We now transform the projection from wgs84 to appropriate projected coordinate system of Nigeria.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>wp_sf <span class="ot">&lt;-</span> wp_sf <span class="sc">%&gt;%</span></span>
