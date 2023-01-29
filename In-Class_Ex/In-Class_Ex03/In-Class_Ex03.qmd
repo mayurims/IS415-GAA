@@ -228,7 +228,7 @@ tmap_mode("plot")
 boxmap("wp_nonfunctional", NGA_wp)
 ```
 
-### **Recode zero**
+### **Recode zero** 
 
 ```{r}
 NGA_wp <- NGA_wp %>%
