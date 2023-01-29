@@ -154,8 +154,18 @@ wp_unknown <- wp_sf_nga %>%
 Next, the code chunk below is used to perform a quick EDA on the derived sf data.frames.
 
 ```{r}
-freq(data = wp_sf_nga,
-     input = '#status_clean')
+freq(data = wp_functional,
+     input = 'status_clean')
+```
+
+```{r}
+freq(data = wp_nonfunctional,
+     input = 'status_clean')
+```
+
+```{r}
+freq(data = wp_unknown,
+     input = 'status_clean')
 ```
 
 ## Performing Point-in Polygon Count
