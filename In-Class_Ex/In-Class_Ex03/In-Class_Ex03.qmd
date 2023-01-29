@@ -1,5 +1,5 @@
 ---
-title: "In-class Excercise3: Analytical Mapping"
+title: "In-class Excercise 3: Analytical Mapping"
 date: "25 January 2023"
 date-modified: "`r Sys.Date()`"
 format: html
