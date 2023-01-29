@@ -147,6 +147,7 @@ ggplot(data = NGA_wp,
 ```
 
 ### 
+
 **Creating the boxbreaks function**
 
 ```{r}
@@ -195,6 +196,7 @@ boxbreaks(var)
 ```
 
 ### 
+
 **Boxmap function**
 
 ```{r}
@@ -228,7 +230,7 @@ tmap_mode("plot")
 boxmap("wp_nonfunctional", NGA_wp)
 ```
 
-### **Recode zero** 
+### **Recode zero**
 
 ```{r}
 NGA_wp <- NGA_wp %>%
