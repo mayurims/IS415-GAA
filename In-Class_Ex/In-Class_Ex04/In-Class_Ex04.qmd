@@ -81,7 +81,7 @@ childcare_sp
 sg_sp
 ```
 
-## Converting the generic sp format into spatstat\'s ppp format
+## Converting the generic sp format into spatstat's ppp format
 
 ```{r}
 childcare_ppp <- as(childcare_sp, "ppp")
@@ -189,7 +189,7 @@ kde_childcareSG.bw <- density(childcareSG_ppp.km, sigma=bw.diggle, edge=TRUE, ke
 plot(kde_childcareSG.bw)
 ```
 
-## Working with different automatic badwidth methods
+## Working with different automatic bandwidth methods
 
 ```{r}
  bw.CvL(childcareSG_ppp.km)
@@ -289,7 +289,7 @@ projection(kde_childcareSG_bw_raster) <- CRS("+init=EPSG:3414")
 kde_childcareSG_bw_raster
 ```
 
-##  Visualising the output in **tmap**
+## Visualising the output in **tmap**
 
 ```{r}
 tm_shape(kde_childcareSG_bw_raster) + 
@@ -400,4 +400,32 @@ plot(density(childcare_tm_ppp.km,
              edge=TRUE, 
              kernel="gaussian"),
      main="Tampines")
+```
+
+## Nearest Neighbour Analysis
+
+### Testing spatial point patterns using Clark and Evans Test
+
+```{r}
+clarkevans.test(childcareSG_ppp,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"),
+                nsim=99)
+```
+
+```{r}
+clarkevans.test(childcare_ck_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
+```
+
+```{r}
+clarkevans.test(childcare_tm_ppp,
+                correction="none",
+                clipregion=NULL,
+                alternative=c("two.sided"),
+                nsim=999)
 ```
