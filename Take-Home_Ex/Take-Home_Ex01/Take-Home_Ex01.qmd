@@ -10,3 +10,129 @@ execute:
   warning: false
 editor: visual
 ---
+
+# Overview
+
+-   Talk about water situation in Nigeria
+
+-   Talk about water situation in Oson state
+
+-   Talk about the Osun river and its myth
+
+-   Objective of the assignment and elaborate
+
+# Setup
+
+## Packages Used
+
+-   sf : Used for ..
+
+-   tidyverse : Used for ..
+
+-   tmap :
+
+-   spatstat :
+
+-   raster :
+
+-   maptools :
+
+-   rgdal :
+
+-   
+
+```{r}
+pacman::p_load(kableExtra)
+```
+
+## Datasets Used
+
+```{r}
+# initialise a dataframe of our geospatial and aspatial dataset details
+datasets <- data.frame(
+  Type=c("Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         
+         "Aspatial",
+         "Aspatial",
+         "Aspatial",
+         "Aspatial"),
+  
+  Name=c("Singapore National Boundary `CostalOutline`",
+         "Master Plan 2014 Subzone Boundary (Web) `MP14_SUBZONE_WEB_PL`",
+         "MRT & LRT Locations Aug 2021 `MRTLRTStnPtt`",
+         "Bus Stop Locations Aug 2021 `BusStop`",
+         "Taxi Stand Locations Aug 2021 `TaxiStop`",
+         "Historic Sites",
+         "Moneychanger Locations",
+         "Monuments",
+         "Museums",
+         
+         "Singapore Airbnb Listings June 2019",
+         "Singapore Airbnb Listings June 2021",
+         "Tourism",
+         "Hotels"),
+  
+  Format=c(".shp", 
+           ".shp", 
+           ".shp", 
+           ".shp", 
+           ".shp", 
+           ".kml",
+           ".kml",
+           ".kml",
+           ".kml",
+           
+           ".csv",
+           ".csv",
+           ".csv",
+           ".csv"),
+  
+  Source=c("[data.gov.sg](https://data.gov.sg/dataset/national-map-polygon)",
+           "[data.gov.sg](https://data.gov.sg/dataset/master-plan-2014-subzone-boundary-web)",
+           "[LTA Data Mall](https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html?searchText=mrt)",
+           "[LTA Data Mall](https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html?searchText=bus%20stop)",
+           "[LTA Data Mall](https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html?searchText=taxi)",
+           "[data.gov.sg](https://data.gov.sg/dataset/historic-sites)",
+           "[data.gov.sg](https://data.gov.sg/dataset/locations-of-money-changer)",
+           "[data.gov.sg](https://data.gov.sg/dataset/monuments)",
+           "[data.gov.sg](https://data.gov.sg/dataset/museums)",
+           
+           "[Inside Airbnb](http://insideairbnb.com/get-the-data.html)",
+           "[Inside Airbnb](http://insideairbnb.com/get-the-data.html)",
+           "[OneMap API](https://www.onemap.gov.sg/docs/)",
+           "[OneMap API](https://www.onemap.gov.sg/docs/)")
+  )
+
+# with reference to this guide on kableExtra:
+# https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
+# kable_material is the name of the kable theme
+# 'hover' for to highlight row when hovering, 'scale_down' to adjust table to fit page width
+library(knitr)
+library(kableExtra)
+kable(datasets, caption="Datasets Used") %>%
+  kable_material("hover", latex_options="scale_down")
+```
+
+# Data Wrangling : Geospatial Data
+
+# Data Wrangling : Aspatial Data
+
+```{r}
+
+```
+
+# Exploratory Spatial Data Analysis
+
+# Specific KDE Maps
+
+# Second-order Spatial Point Patterns Analysis
+
+# Acknowledgments

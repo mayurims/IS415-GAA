@@ -1,5 +1,5 @@
 ---
-title: "In-class Exercise 4"
+title: "In-class Exercise 4 1st Order Spatial Point Patterns Analysis Methods"
 author: "Mayuri Salunke"
 date: "30 January 2023"
 date-modified: "`r Sys.Date()`"
@@ -39,14 +39,18 @@ mpsz_sf <- st_read(dsn = "data",
 ```{r}
 tmap_mode('view')
 tm_shape(childcare_sf)+
-  tm_dots()
+  # Alpha is fo opacity (to introduce transperancy - different tones of grey, you can set to a different colour as well). You can also use tm_bubbles. C(11,14) is to set zoom limit to ensure you cant zoom out alot. 11 is zoom out limit and 14 is zoom in limit. First value should always be smaller than 2nd value). You can use set.bounds to set the boundary
+  tm_dots(alph = 0.5,
+          size = 0.01) + 
+  tm_view(set.zoom.limits = c(11,14))
+# Use tmap_mode('plot') to create static map
 ```
 
 ```{r}
 tmap_mode('plot')
 ```
 
-# Geospatial Dat Wrangling
+# Geospatial Data Wrangling
 
 ```{r}
 childcare <- as_Spatial(childcare_sf)

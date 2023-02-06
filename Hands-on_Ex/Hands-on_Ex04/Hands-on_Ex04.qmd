@@ -49,7 +49,7 @@ tmap_mode('plot')
 
 # Geospatial Data wrangling
 
-## Converting sf data frames to sp\'s Spatial\* class
+## Converting sf data frames to sp's Spatial\* class
 
 ```{r}
 childcare <- as_Spatial(childcare_sf)
@@ -84,7 +84,7 @@ childcare_sp
 sg_sp
 ```
 
-## Converting the generic sp format into spatstat\'s ppp format
+## Converting the generic sp format into spatstat's ppp format
 
 ```{r}
 childcare_ppp <- as(childcare_sp, "ppp")
