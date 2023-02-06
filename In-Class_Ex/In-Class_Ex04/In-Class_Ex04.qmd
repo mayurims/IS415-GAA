@@ -23,6 +23,7 @@ pacman::p_load(maptools, sf, raster, spatstat, tmap)
 Importing Data
 
 ```{r}
+# Sf saves the data into dataframe format
 childcare_sf <- st_read("data/child-care-services-geojson.geojson") %>%
   st_transform(crs = 3414)
 ```
@@ -128,6 +129,7 @@ tmap_mode('plot')
 ```
 
 ```{r}
+# We put a small distance btwn the points (nsim=1) to avoid duplication
 childcare_ppp_jit <- rjitter(childcare_ppp, 
                              retry=TRUE, 
                              nsim=1, 
@@ -185,6 +187,7 @@ bw
 ```
 
 ```{r}
+# Changing it to km, so that it is easier to understand the density.Both maps are identical, its just the range. Make sure the title of the map is clear
 childcareSG_ppp.km <- rescale(childcareSG_ppp, 1000, "km")
 ```
 

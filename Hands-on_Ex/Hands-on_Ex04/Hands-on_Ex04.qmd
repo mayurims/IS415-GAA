@@ -141,6 +141,7 @@ any(duplicated(childcare_ppp_jit))
 ## Creating ***owin*** object
 
 ```{r}
+# The owin helps to explicity define the sturdy area
 sg_owin <- as(sg_sp, "owin")
 ```
 
@@ -315,12 +316,15 @@ plot(K_tm.csr, . - r ~ r,
 ## Choa Chu Kang planning area
 
 ```{r}
+# Correction to take care of age effect. Some take longer time than others (experiment on it). This is without simulation, it just estimates. Anythign above reference line, shows cluster and below reference line shows regular pattern.
 L_ck = Lest(childcare_ck_ppp, correction = "Ripley")
 plot(L_ck, . -r ~ r, 
      ylab= "L(d)-r", xlab = "d(m)")
 ```
 
 ```{r}
+# This is to run simulation several times to derive an envelope. The grey envelope represents 100 dfferent lines (bcs each simualation gives a line, so 99 times gives 100 since in R, it starts from 0). From 480, it goes out side the range. But till 480, it is within the range at 99% confidence. We dont have enough statistical evidence to remove the null hypothesis. But form 480 onwards, i can see that there is a cluster and i can say that it is cluster. 480m btwn the childcare center- at this distance range, it shows clustering nature.
+# So anything that falls within the envelope, there is not enough evidence to reject the null hypothesis, But anything outside the envelope, you can reject the null hypothesis. 
 L_ck.csr <- envelope(childcare_ck_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
 ```
 
