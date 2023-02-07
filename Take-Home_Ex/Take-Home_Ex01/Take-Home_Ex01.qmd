@@ -443,8 +443,446 @@ plot(wp_functional_ppp)
 
 # 6.0 Exploratory Spatial Data Analysis
 
-# 7.0 Specific KDE Maps
+Talk about what we are going to do here, and what is the objectivee
 
-# 8.0 Second-order Spatial Point Patterns Analysis
+## 6.1 Kernel Density Estimation
+
+### 6.1.1 Computing Kernel Density Estimation
+
+**Computing using Automatic Bandwidth selection method**
+
+Explain (Hands on ex 5)
+
+```{r}
+kde_wpfunctional_bw <- density(wp_functional_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+kde_wpnonfunctional_bw <- density(wp_nonfunctional_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+
+par(mfrow=c(1,2))
+plot(kde_wpfunctional_bw,
+     main = "Functional Water Points",
+     ribside=c("right"))
+plot(kde_wpnonfunctional_bw,
+     main = "Non-Functional Water Points",
+     ribside=c("right"))
+```
+
+**Computing using Adaptive Bandwidth selection method**
+
+```{r}
+kde_wpfunctional_adaptive <- adaptive.density(wp_functional_ppp, method="kernel")
+
+kde_wpnonfunctional_adaptive <- adaptive.density(wp_nonfunctional_ppp, method="kernel")
+
+par(mfrow=c(1,2))
+plot(kde_wpfunctional_adaptive,
+     main = "Functional Water Points",
+     ribside=c("right"))
+plot(kde_wpnonfunctional_adaptive,
+     main = "Non-Functional Water Points",
+     ribside=c("right"))
+```
+
+**Comparing Automated and Adapting Bandwith Methods (side-by-side)**
+
+```{r}
+par(mfrow=c(1,2))
+plot(kde_wpfunctional_bw,
+     main = "Functional Water Points",
+     ribside=c("right"))
+plot(kde_wpfunctional_adaptive,
+     main = "Non-Functional Water Points",
+     ribside=c("right"))
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(kde_wpnonfunctional_bw,
+     main = "Functional Water Points",
+     ribside=c("right"))
+plot(kde_wpnonfunctional_adaptive,
+     main = "Non-Functional Water Points",
+     ribside=c("right"))
+```
+
+### 6.1.2 Rescalling KDE Values
+
+As we can those values are small, so *rescale()* is used to covert the unit of measurement from meter to kilometer. ELABORATEE
+
+```{r}
+wp_functional_ppp_km <- rescale(wp_functional_ppp, 1000, "km")
+wp_nonfunctional_ppp_km <- rescale(wp_nonfunctional_ppp, 1000, "km")
+```
+
+Now we replot the graphs
+
+::: panel-tabset
+Automated Bandwitch Method
+
+```{r}
+kde_wpfunctional_km <- density(wp_functional_ppp_km,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+kde_wpnonfunctional_km <- density(wp_nonfunctional_ppp_km,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+
+par(mfrow=c(1,2))
+plot(kde_wpfunctional_bw,
+     main = "Functional Water Points",
+     ribside=c("right"))
+plot(kde_wpnonfunctional_bw,
+     main = "Non-Functional Water Points",
+     ribside=c("right"))
+
+```
+
+Adaptive Bandwidth Method
+
+```{r}
+kde_wpfunctional_adaptive_km <- adaptive.density(wp_functional_ppp_km, method="kernel")
+
+kde_wpnonfunctional_adaptive_km <- adaptive.density(wp_nonfunctional_ppp_km, method="kernel")
+
+par(mfrow=c(1,2))
+plot(kde_wpfunctional_adaptive,
+     main = "Functional Water Points",
+     ribside=c("right"))
+plot(kde_wpnonfunctional_adaptive,
+     main = "Non-Functional Water Points",
+     ribside=c("right"))
+
+```
+:::
+
+## 6.2 Converting KDE output into grid object
+
+```{r}
+gridded_wpfunctional <- as.SpatialGridDataFrame.im(kde_wpfunctional_km)
+gridded_wpnonfunctional <- as.SpatialGridDataFrame.im(kde_wpnonfunctional_km)
+
+spplot(gridded_wpfunctional)
+spplot(gridded_wpnonfunctional)
+```
+
+### 6.2.1 Converting Gridded Output into Raster
+
+```{r}
+kde_wpfunctional_raster <- raster(gridded_wpfunctional)
+kde_wpfunctional_raster
+```
+
+```{r}
+kde_wpnonfunctional_raster <- raster(gridded_wpnonfunctional)
+kde_wpnonfunctional_raster
+```
+
+### 6.2.2 Assigning Projection Systems
+
+```{r}
+projection(kde_wpfunctional_raster) <- CRS("+init=EPSG:26392 +datum:WGS84 +units=km")
+kde_wpfunctional_raster
+```
+
+```{r}
+projection(kde_wpnonfunctional_raster) <- CRS("+init=EPSG:26392 +datum:WGS84 +units=km")
+kde_wpnonfunctional_raster
+```
+
+## 6.3 Kernel Density Maps on OpenStreetMap
+
+Now, as the assignment requirements has specified, we should plot our kernel density maps on OpenStreetMap, aiming to describe the spatial patterns revealed as well as highlight the advantage of kernel density map over point map. Since we'll be plotting a lot of kernel density maps, let's create a function:
+
+```{r}
+density_map <- function(raster_object, map_title) {
+  tm_basemap("OpenStreetMap") +
+tm_shape(raster_object) +
+  tm_raster("v", alpha=0.65) + 
+  tm_layout(legend.position = c("right", "bottom"), 
+            legend.height = 0.5, 
+            legend.width = 0.4,
+            main.title = map_title,
+            main.title.position = 'center',
+            main.title.size = 1,
+            frame = TRUE)
+  } 
+```
+
+```{r}
+kde_wpfunctional_raster_density_map <- density_map(kde_wpfunctional_raster, map_title = "Functional Water Points in Osun State")
+kde_wpnonfunctional_raster_density_map <- density_map(kde_wpnonfunctional_raster, map_title = "Non-Functional Water Points in Osun State")
+```
+
+```{r}
+kde_wpfunctional_raster_density_map
+```
+
+```{r}
+kde_wpnonfunctional_raster_density_map
+```
+
+## 6.4 Kernel Density Maps Analysis
+
+## 6.5 Nearest Neighbour Analysis
+
+The 95% confident interval will be used.
+
+The test hypotheses for Functional Water Point is :
+
+**H~0~ :** The distribution of Functional Water Point in Osun State is randomly distributed.
+
+**H~1~ :** The distribution of Functional Water Point in Osun State is not randomly distributed.
+
+```{r}
+clarkevans.test(wp_functional_ppp,
+                correction="none",
+                clipregion="NGA_owin",
+                alternative=c("clustered"),
+                nsim=99)
+```
+
+**Conclusion :**
+
+The test hypotheses for Non-Functional Water Point is :
+
+**H~0~ :** The distribution of Non-Functional Water Point in Osun State is randomly distributed.
+
+**H~1~ :** The distribution of Non-Functional Water Point in Osun State is not randomly distributed.
+
+```{r}
+clarkevans.test(wp_nonfunctional_ppp,
+                correction="none",
+                clipregion="nga_owin",
+                alternative=c("clustered"),
+                nsim=99)
+```
+
+**Conclusion :**
+
+## 6.6 Advantage of Kernel Density Map over Point Map
+
+# 7.0 Second-order Spatial Point Patterns Analysis
+
+For Functional Water Point in Osun Sate
+
+-   **H0: The distribution of the** Functional Water Point**s are randomly distributed**
+
+-   **H1: The distribution of the** Functional Water Points **are not randomly distributed**
+
+-   **Confidence level : 99%**
+
+-   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I\'ve decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
+
+For Non-Functional Water Point in Osun Sate
+
+-   **H0: The distribution of the Non-**Functional Water Point**s are randomly distributed**
+
+-   **H1: The distribution of the Non-**Functional Water Points **are not randomly distributed**
+
+-   **Confidence level : 99%**
+
+-   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I\'ve decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
+
+## 7.1 Analysing Spatial Point Process Using G-Function
+
+### 7.1.1 Functional Water Point
+
+Computing G-function estimation
+
+```{r}
+G_wp_functional = Gest(wp_functional_ppp, correction = "border")
+plot(G_wp_functional, xlim=c(0,500))
+```
+
+Performing Complete Spatial Randomness Test
+
+```{r}
+#G_wp_functional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
+```
+
+```{r}
+#plot(G_wp_functional.csr)
+```
+
+### 7.1.2 Non-Functional Water Point
+
+Computing G-function estimation
+
+```{r}
+#G_wp_nonfunctional = Gest(wp_nonfunctional_ppp, correction = "border")
+#plot(G_wp_nonfunctional, xlim=c(0,500))
+```
+
+Performing Complete Spatial Randomness Test
+
+```{r}
+#G_wp_nonfunctional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
+```
+
+```{r}
+#plot(G_wp_nonfunctional.csr)
+```
+
+## 7.2 Analysing Spatial Point Process using F-Function
+
+### 7.2.1 Functional Water Points
+
+Computing F-function estimation
+
+```{r}
+#F_wp_functional = Fest(wp_functional_ppp)
+#plot(F_wp_functional)
+```
+
+Performing Complete Spatial Randomness Test
+
+```{r}
+#F_wp_functional.csr <- envelope(wp_functional_ppp, Fest, nsim = 999)
+```
+
+```{r}
+#plot(F_wp_functional.csr)
+```
+
+### 7.2.2 Non-Functional Water Points
+
+Computing F-function estimation
+
+```{r}
+#F_wp_nonfunctional = Fest(wp_nonfunctional_ppp, correction="best")
+#plot(F_wp_functional)
+```
+
+Performing Complete Spatial Randomness Test
+
+```{r}
+#F_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Fest, nsim = 999)
+```
+
+```{r}
+#plot(F_wp_nonfunctional.csr)
+```
+
+## 7.3 Analysing Spatial Point Process Using K-Function
+
+### 7.3.1 Functional Water Point
+
+Computing K-function estimate
+
+```{r}
+#K_wp_functional = Kest(wp_functional_ppp, correction = "Ripley")
+#plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
+```
+
+Performing Complete Spatial Randomness
+
+```{r}
+#K_wp_functional.csr <- envelope(wp_functional_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+#plot(K_wp_functional.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+```
+
+### 7.3.1 Non-Functional Water Point
+
+Computing K-function estimate
+
+```{r}
+#K_wp_nonfunctional = Kest(wp_nonfunctional_ppp, correction = "Ripley")
+#plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
+```
+
+Performing Complete Spatial Randomness
+
+```{r}
+#K_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+#plot(K_wp_nonfunctional.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+```
+
+## 7.4 Analysing Spatial Point Process using L-Function
+
+### 7.4.1 Functional Water Point
+
+Computing L-function estimate
+
+```{r}
+#L_wp_functional = Lest(wp_functional_ppp, correction = "Ripley")
+#plot(L_wp_functional_ppp, . -r ~ r, 
+     #ylab= "L(d)-r", xlab = "d(m)")
+```
+
+Performing Complete Spatial Randomness
+
+```{r}
+#L_wp_functional.csr <- envelope(wp_functional_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+#plot(L_wp_functional.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+```
+
+### 7.4.1 Non-Functional Water Point
+
+Computing L-function estimate
+
+```{r}
+#L_wp_nonfunctional = Lest(wp_nonfunctional_ppp, correction = "Ripley")
+#plot(L_tm, . -r ~ r, 
+     #ylab= "L(d)-r", xlab = "d(m)", 
+     #xlim=c(0,1000))
+```
+
+Performing Complete Spatial Randomness
+
+```{r}
+#L_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+```{r}
+#plot(L_wp_nonfunctional.csr, . - r ~ r, 
+     #xlab="d", ylab="L(d)-r", xlim=c(0,500))
+```
+
+Analysis :
+
+# 8.0 Spatial Correlation Analysis
+
+8.1 Data Pre-Processing
+
+Convert sf data frames to sp's Spatial class
+
+```{r}
+wp_spatial <- as_Spatial(wp_sf_nga)
+```
+
+Convert spatial class into generic sp class
+
+```{r}
+wp_sp <- as(wp_spatial, "SpatialPoints")
+```
+
+Converting generic sp format into spatstat's ppp format
+
+```{r}
+wp_ppp <- as(wp_sp, "ppp")
+wp_ppp
+```
+
+```{r}
+plot(wp_ppp)
+```
+
+Analysing Spatial Point using L-Function
 
 # 9.0 Acknowledgments

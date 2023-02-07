@@ -558,5 +558,75 @@
     "title": "Take-Home Excercise 01",
     "section": "5.5 Combining point events object and owin object",
     "text": "5.5 Combining point events object and owin object\n\nwp_functional_ppp = wp_functional_ppp[NGA_owin]\nwp_nonfunctional_ppp = wp_nonfunctional_ppp[NGA_owin]\n\n\npar(mfrow=c(1,2))\nplot(wp_nonfunctional_ppp)\nplot(wp_functional_ppp)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#kernel-density-estimation",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#kernel-density-estimation",
+    "title": "Take-Home Excercise 01",
+    "section": "6.1 Kernel Density Estimation",
+    "text": "6.1 Kernel Density Estimation\n\n6.1.1 Computing Kernel Density Estimation\nComputing using Automatic Bandwidth selection method\nExplain (Hands on ex 5)\n\nkde_wpfunctional_bw <- density(wp_functional_ppp,\n                              sigma=bw.diggle,\n                              edge=TRUE,\n                            kernel=\"gaussian\") \nkde_wpnonfunctional_bw <- density(wp_nonfunctional_ppp,\n                              sigma=bw.diggle,\n                              edge=TRUE,\n                            kernel=\"gaussian\") \n\npar(mfrow=c(1,2))\nplot(kde_wpfunctional_bw,\n     main = \"Functional Water Points\",\n     ribside=c(\"right\"))\nplot(kde_wpnonfunctional_bw,\n     main = \"Non-Functional Water Points\",\n     ribside=c(\"right\"))\n\n\n\n\nComputing using Adaptive Bandwidth selection method\n\nkde_wpfunctional_adaptive <- adaptive.density(wp_functional_ppp, method=\"kernel\")\n\nkde_wpnonfunctional_adaptive <- adaptive.density(wp_nonfunctional_ppp, method=\"kernel\")\n\npar(mfrow=c(1,2))\nplot(kde_wpfunctional_adaptive,\n     main = \"Functional Water Points\",\n     ribside=c(\"right\"))\nplot(kde_wpnonfunctional_adaptive,\n     main = \"Non-Functional Water Points\",\n     ribside=c(\"right\"))\n\n\n\n\nComparing Automated and Adapting Bandwith Methods (side-by-side)\n\npar(mfrow=c(1,2))\nplot(kde_wpfunctional_bw,\n     main = \"Functional Water Points\",\n     ribside=c(\"right\"))\nplot(kde_wpfunctional_adaptive,\n     main = \"Non-Functional Water Points\",\n     ribside=c(\"right\"))\n\n\n\n\n\npar(mfrow=c(1,2))\nplot(kde_wpnonfunctional_bw,\n     main = \"Functional Water Points\",\n     ribside=c(\"right\"))\nplot(kde_wpnonfunctional_adaptive,\n     main = \"Non-Functional Water Points\",\n     ribside=c(\"right\"))\n\n\n\n\n\n\n6.1.2 Rescalling KDE Values\nAs we can those values are small, so rescale() is used to covert the unit of measurement from meter to kilometer. ELABORATEE\n\nwp_functional_ppp_km <- rescale(wp_functional_ppp, 1000, \"km\")\nwp_nonfunctional_ppp_km <- rescale(wp_nonfunctional_ppp, 1000, \"km\")\n\nNow we replot the graphs\n\nAutomated Bandwitch Method\n\nkde_wpfunctional_km <- density(wp_functional_ppp_km,\n                              sigma=bw.diggle,\n                              edge=TRUE,\n                            kernel=\"gaussian\") \nkde_wpnonfunctional_km <- density(wp_nonfunctional_ppp_km,\n                              sigma=bw.diggle,\n                              edge=TRUE,\n                            kernel=\"gaussian\") \n\npar(mfrow=c(1,2))\nplot(kde_wpfunctional_bw,\n     main = \"Functional Water Points\",\n     ribside=c(\"right\"))\nplot(kde_wpnonfunctional_bw,\n     main = \"Non-Functional Water Points\",\n     ribside=c(\"right\"))\n\n\n\n\nAdaptive Bandwidth Method\n\nkde_wpfunctional_adaptive_km <- adaptive.density(wp_functional_ppp_km, method=\"kernel\")\n\nkde_wpnonfunctional_adaptive_km <- adaptive.density(wp_nonfunctional_ppp_km, method=\"kernel\")\n\npar(mfrow=c(1,2))\nplot(kde_wpfunctional_adaptive,\n     main = \"Functional Water Points\",\n     ribside=c(\"right\"))\nplot(kde_wpnonfunctional_adaptive,\n     main = \"Non-Functional Water Points\",\n     ribside=c(\"right\"))"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#converting-kde-output-into-grid-object",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#converting-kde-output-into-grid-object",
+    "title": "Take-Home Excercise 01",
+    "section": "6.2 Converting KDE output into grid object",
+    "text": "6.2 Converting KDE output into grid object\n\ngridded_wpfunctional <- as.SpatialGridDataFrame.im(kde_wpfunctional_km)\ngridded_wpnonfunctional <- as.SpatialGridDataFrame.im(kde_wpnonfunctional_km)\n\nspplot(gridded_wpfunctional)\n\n\n\nspplot(gridded_wpnonfunctional)\n\n\n\n\n\n6.2.1 Converting Gridded Output into Raster\n\nkde_wpfunctional_raster <- raster(gridded_wpfunctional)\nkde_wpfunctional_raster\n\nclass      : RasterLayer \ndimensions : 128, 128, 16384  (nrow, ncol, ncell)\nresolution : 0.8948485, 0.9616045  (x, y)\nextent     : 176.5032, 291.0438, 331.4347, 454.5201  (xmin, xmax, ymin, ymax)\ncrs        : NA \nsource     : memory\nnames      : v \nvalues     : -5.092436e-15, 25.49435  (min, max)\n\n\n\nkde_wpnonfunctional_raster <- raster(gridded_wpnonfunctional)\nkde_wpnonfunctional_raster\n\nclass      : RasterLayer \ndimensions : 128, 128, 16384  (nrow, ncol, ncell)\nresolution : 0.8948485, 0.9616045  (x, y)\nextent     : 176.5032, 291.0438, 331.4347, 454.5201  (xmin, xmax, ymin, ymax)\ncrs        : NA \nsource     : memory\nnames      : v \nvalues     : -3.925434e-15, 20.49412  (min, max)\n\n\n\n\n6.2.2 Assigning Projection Systems\n\nprojection(kde_wpfunctional_raster) <- CRS(\"+init=EPSG:26392 +datum:WGS84 +units=km\")\nkde_wpfunctional_raster\n\nclass      : RasterLayer \ndimensions : 128, 128, 16384  (nrow, ncol, ncell)\nresolution : 0.8948485, 0.9616045  (x, y)\nextent     : 176.5032, 291.0438, 331.4347, 454.5201  (xmin, xmax, ymin, ymax)\ncrs        : +init=EPSG:26392 +datum:WGS84 +units=km \nsource     : memory\nnames      : v \nvalues     : -5.092436e-15, 25.49435  (min, max)\n\n\n\nprojection(kde_wpnonfunctional_raster) <- CRS(\"+init=EPSG:26392 +datum:WGS84 +units=km\")\nkde_wpnonfunctional_raster\n\nclass      : RasterLayer \ndimensions : 128, 128, 16384  (nrow, ncol, ncell)\nresolution : 0.8948485, 0.9616045  (x, y)\nextent     : 176.5032, 291.0438, 331.4347, 454.5201  (xmin, xmax, ymin, ymax)\ncrs        : +init=EPSG:26392 +datum:WGS84 +units=km \nsource     : memory\nnames      : v \nvalues     : -3.925434e-15, 20.49412  (min, max)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#kernel-density-maps-on-openstreetmap",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#kernel-density-maps-on-openstreetmap",
+    "title": "Take-Home Excercise 01",
+    "section": "6.3 Kernel Density Maps on OpenStreetMap",
+    "text": "6.3 Kernel Density Maps on OpenStreetMap\nNow, as the assignment requirements has specified, we should plot our kernel density maps on OpenStreetMap, aiming to describe the spatial patterns revealed as well as highlight the advantage of kernel density map over point map. Since we’ll be plotting a lot of kernel density maps, let’s create a function:\n\ndensity_map <- function(raster_object, map_title) {\n  tm_basemap(\"OpenStreetMap\") +\ntm_shape(raster_object) +\n  tm_raster(\"v\", alpha=0.65) + \n  tm_layout(legend.position = c(\"right\", \"bottom\"), \n            legend.height = 0.5, \n            legend.width = 0.4,\n            main.title = map_title,\n            main.title.position = 'center',\n            main.title.size = 1,\n            frame = TRUE)\n  } \n\n\nkde_wpfunctional_raster_density_map <- density_map(kde_wpfunctional_raster, map_title = \"Functional Water Points in Osun State\")\nkde_wpnonfunctional_raster_density_map <- density_map(kde_wpnonfunctional_raster, map_title = \"Non-Functional Water Points in Osun State\")\n\n\nkde_wpfunctional_raster_density_map\n\n\n\n\n\nkde_wpnonfunctional_raster_density_map"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#kernel-density-maps-analysis",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#kernel-density-maps-analysis",
+    "title": "Take-Home Excercise 01",
+    "section": "6.4 Kernel Density Maps Analysis",
+    "text": "6.4 Kernel Density Maps Analysis"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#nearest-neighbour-analysis",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#nearest-neighbour-analysis",
+    "title": "Take-Home Excercise 01",
+    "section": "6.5 Nearest Neighbour Analysis",
+    "text": "6.5 Nearest Neighbour Analysis\nThe 95% confident interval will be used.\nThe test hypotheses for Functional Water Point is :\nH0 : The distribution of Functional Water Point in Osun State is randomly distributed.\nH1 : The distribution of Functional Water Point in Osun State is not randomly distributed.\n\nclarkevans.test(wp_functional_ppp,\n                correction=\"none\",\n                clipregion=\"NGA_owin\",\n                alternative=c(\"clustered\"),\n                nsim=99)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 99 simulations of CSR with fixed n\n\ndata:  wp_functional_ppp\nR = 0.44265, p-value = 0.01\nalternative hypothesis: clustered (R < 1)\n\n\nConclusion :\nThe test hypotheses for Non-Functional Water Point is :\nH0 : The distribution of Non-Functional Water Point in Osun State is randomly distributed.\nH1 : The distribution of Non-Functional Water Point in Osun State is not randomly distributed.\n\nclarkevans.test(wp_nonfunctional_ppp,\n                correction=\"none\",\n                clipregion=\"nga_owin\",\n                alternative=c(\"clustered\"),\n                nsim=99)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 99 simulations of CSR with fixed n\n\ndata:  wp_nonfunctional_ppp\nR = 0.43223, p-value = 0.01\nalternative hypothesis: clustered (R < 1)\n\n\nConclusion :"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#advantage-of-kernel-density-map-over-point-map",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#advantage-of-kernel-density-map-over-point-map",
+    "title": "Take-Home Excercise 01",
+    "section": "6.6 Advantage of Kernel Density Map over Point Map",
+    "text": "6.6 Advantage of Kernel Density Map over Point Map"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-g-function",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-g-function",
+    "title": "Take-Home Excercise 01",
+    "section": "7.1 Analysing Spatial Point Process Using G-Function",
+    "text": "7.1 Analysing Spatial Point Process Using G-Function\n\n7.1.1 Functional Water Point\nComputing G-function estimation\n\nG_wp_functional = Gest(wp_functional_ppp, correction = \"border\")\nplot(G_wp_functional, xlim=c(0,500))\n\n\n\n\nPerforming Complete Spatial Randomness Test\n\n#G_wp_functional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)\n\n\n#plot(G_wp_functional.csr)\n\n\n\n7.1.2 Non-Functional Water Point\nComputing G-function estimation\n\n#G_wp_nonfunctional = Gest(wp_nonfunctional_ppp, correction = \"border\")\n#plot(G_wp_nonfunctional, xlim=c(0,500))\n\nPerforming Complete Spatial Randomness Test\n\n#G_wp_nonfunctional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)\n\n\n#plot(G_wp_nonfunctional.csr)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-f-function",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-f-function",
+    "title": "Take-Home Excercise 01",
+    "section": "7.2 Analysing Spatial Point Process using F-Function",
+    "text": "7.2 Analysing Spatial Point Process using F-Function\n\n7.2.1 Functional Water Points\nComputing F-function estimation\n\n#F_wp_functional = Fest(wp_functional_ppp)\n#plot(F_wp_functional)\n\nPerforming Complete Spatial Randomness Test\n\n#F_wp_functional.csr <- envelope(wp_functional_ppp, Fest, nsim = 999)\n\n\n#plot(F_wp_functional.csr)\n\n\n\n7.2.2 Non-Functional Water Points\nComputing F-function estimation\n\n#F_wp_nonfunctional = Fest(wp_nonfunctional_ppp, correction=\"best\")\n#plot(F_wp_functional)\n\nPerforming Complete Spatial Randomness Test\n\n#F_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Fest, nsim = 999)\n\n\n#plot(F_wp_nonfunctional.csr)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-k-function",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-k-function",
+    "title": "Take-Home Excercise 01",
+    "section": "7.3 Analysing Spatial Point Process Using K-Function",
+    "text": "7.3 Analysing Spatial Point Process Using K-Function\n\n7.3.1 Functional Water Point\nComputing K-function estimate\n\n#K_wp_functional = Kest(wp_functional_ppp, correction = \"Ripley\")\n#plot(K_ck, . -r ~ r, ylab= \"K(d)-r\", xlab = \"d(m)\")\n\nPerforming Complete Spatial Randomness\n\n#K_wp_functional.csr <- envelope(wp_functional_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)\n\n\n#plot(K_wp_functional.csr, . - r ~ r, xlab=\"d\", ylab=\"K(d)-r\")\n\n\n\n7.3.1 Non-Functional Water Point\nComputing K-function estimate\n\n#K_wp_nonfunctional = Kest(wp_nonfunctional_ppp, correction = \"Ripley\")\n#plot(K_ck, . -r ~ r, ylab= \"K(d)-r\", xlab = \"d(m)\")\n\nPerforming Complete Spatial Randomness\n\n#K_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)\n\n\n#plot(K_wp_nonfunctional.csr, . - r ~ r, xlab=\"d\", ylab=\"K(d)-r\")"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-l-function",
+    "href": "Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html#analysing-spatial-point-process-using-l-function",
+    "title": "Take-Home Excercise 01",
+    "section": "7.4 Analysing Spatial Point Process using L-Function",
+    "text": "7.4 Analysing Spatial Point Process using L-Function\n\n7.4.1 Functional Water Point\nComputing L-function estimate\n\n#L_wp_functional = Lest(wp_functional_ppp, correction = \"Ripley\")\n#plot(L_wp_functional_ppp, . -r ~ r, \n     #ylab= \"L(d)-r\", xlab = \"d(m)\")\n\nPerforming Complete Spatial Randomness\n\n#L_wp_functional.csr <- envelope(wp_functional_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)\n\n\n#plot(L_wp_functional.csr, . - r ~ r, xlab=\"d\", ylab=\"L(d)-r\")\n\n\n\n7.4.1 Non-Functional Water Point\nComputing L-function estimate\n\n#L_wp_nonfunctional = Lest(wp_nonfunctional_ppp, correction = \"Ripley\")\n#plot(L_tm, . -r ~ r, \n     #ylab= \"L(d)-r\", xlab = \"d(m)\", \n     #xlim=c(0,1000))\n\nPerforming Complete Spatial Randomness\n\n#L_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)\n\n\n#plot(L_wp_nonfunctional.csr, . - r ~ r, \n     #xlab=\"d\", ylab=\"L(d)-r\", xlim=c(0,500))\n\nAnalysis :"
   }
 ]
