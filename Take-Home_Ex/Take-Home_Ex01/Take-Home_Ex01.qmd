@@ -137,19 +137,13 @@ kable(datasets, caption="Datasets Used") %>%
 ## 3.1 Importing Geospatial Data
 
 ```{r}
-geoNGA <- st_read("data/geospatial", 
-                  layer = "geoBoundaries-NGA-ADM2") %>%
-  st_transform(crs = 26392)
-```
-
-```{r}
 NGA <- st_read("data/geospatial", 
                   layer = "nga_admbnda_adm2_osgof_20190417") %>%
   filter(ADM1_EN == "Osun") %>%
   st_transform(crs = 26392)
 ```
 
-(Talk about Geodetic CRS)
+(Talk about CRS)
 
 ## 3.2 Data Pre-processing
 
@@ -158,15 +152,6 @@ NGA <- st_read("data/geospatial",
 There are no invalid dimensions, so not required
 
 ### 3.2.2 Invalid Geometries
-
-```{r}
-# function breakdown:
-# the st_is_valid function checks whether a geometry is valid which returns the indices of certain values based on logical conditions
-# length returns the length of data objects
-
-# checks for the number of geometries that are NOT valid
-length(which(st_is_valid(geoNGA) == FALSE))
-```
 
 ```{r}
 length(which(st_is_valid(NGA) == FALSE))
@@ -186,45 +171,39 @@ NGA <- NGA %>%
 ### 3.2.4 Missing Values
 
 ```{r}
-# the rowSums(is.na(sg_sf))!=0 checks every row if there are NA values, returning TRUE or FALSE
-# the sg_sf [] 'wrapper' prints said rows that contain NA values
-geoNGA[rowSums(is.na(geoNGA))!=0,]
-```
-
-```{r}
 NGA[rowSums(is.na(NGA))!=0,]
 ```
 
 ### 3.2.5 Checking for Duplicated Names
 
 ```{r}
-geoNGA$ADM2_EN[duplicated(geoNGA$ADM2_EN)==TRUE]
-```
-
-```{r}
 NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
 ```
 
-### 3.2.7 Initial Visualization
-
-```{r}
-plot(st_geometry(geoNGA))
-```
+### 3.2.6 Initial Visualization
 
 ```{r}
 plot(st_geometry(NGA))
 ```
 
 ```{r}
+tmap_mode('view')
+tm_shape(NGA)+
+  tm_dots(col="purple", alph = 0.5,
+          size = 0.01) + 
+  tm_view(set.zoom.limits = c(8,14))
+# Use tmap_mode('plot') to create static map
+```
+
+```{r}
 tmap_mode("plot")
-tm_shape(geoNGA) +
+tm_shape(NGA) +
   tm_borders(alpha = 0.5) +
   tmap_options(check.and.fix = TRUE) +
-tm_shape(NGA) +
   tm_dots(col="red", size=0.05) +
-  tm_layout(main.title = "Nigeria Water Point Data",
+  tm_layout(main.title = "State Boundary GIS Data Of Osun, Nigeria",
           main.title.position = "center",
-          main.title.size = 1.2,
+          main.title.size = 0.8,
           frame = TRUE)
 
 ```
@@ -421,6 +400,18 @@ plot(wp_nonfunctional_ppp)
 plot(wp_functional_ppp)
 ```
 
+### 5.3.1 Handling Duplicated Points + Jittering
+
+```{r}
+any(duplicated(wp_functional_ppp)) 
+```
+
+```{r}
+any(duplicated(wp_nonfunctional_ppp)) 
+```
+
+Since there is no duplication, we dont have to apply the process of Jittering.
+
 ## 5.4 Creating Owin Object
 
 ```{r}
@@ -602,6 +593,7 @@ Now, as the assignment requirements has specified, we should plot our kernel den
 
 ```{r}
 density_map <- function(raster_object, map_title) {
+  tmap_mode("view")
   tm_basemap("OpenStreetMap") +
 tm_shape(raster_object) +
   tm_raster("v", alpha=0.65) + 
@@ -611,21 +603,36 @@ tm_shape(raster_object) +
             main.title = map_title,
             main.title.position = 'center',
             main.title.size = 1,
-            frame = TRUE)
+            frame = TRUE) + 
+  tm_view(set.zoom.limits = c(8, 13))
   } 
 ```
 
 ```{r}
-kde_wpfunctional_raster_density_map <- density_map(kde_wpfunctional_raster, map_title = "Functional Water Points in Osun State")
-kde_wpnonfunctional_raster_density_map <- density_map(kde_wpnonfunctional_raster, map_title = "Non-Functional Water Points in Osun State")
+kde_wpfunctional_density_map <- density_map(kde_wpfunctional_raster, map_title = "Functional Water Points in Osun State")
+kde_wpnonfunctional_density_map <- density_map(kde_wpnonfunctional_raster, map_title = "Non-Functional Water Points in Osun State")
 ```
 
 ```{r}
-kde_wpfunctional_raster_density_map
+kde_wpfunctional_density_map
 ```
 
 ```{r}
-kde_wpnonfunctional_raster_density_map
+kde_wpnonfunctional_density_map
+```
+
+```{r}
+tmap_mode('plot')
+tm_basemap("OpenStreetMap") +
+tm_shape(kde_wpfunctional_raster) +
+  tm_raster("v")
+```
+
+```{r}
+tmap_mode('plot')
+tm_basemap("OpenStreetMap") +
+tm_shape(kde_wpnonfunctional_raster) +
+  tm_raster("v")
 ```
 
 ## 6.4 Kernel Density Maps Analysis
