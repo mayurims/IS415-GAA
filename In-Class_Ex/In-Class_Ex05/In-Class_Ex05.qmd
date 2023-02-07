@@ -12,7 +12,7 @@ editor: visual
 
 ```{r}
 # sfdep (gonna use for the take home excercise 2)
-pacman::p_load(tidyverse, tmap, sf, sfdep)
+pacman::p_load(tidyverse, tmap, sf, sfdep) 
 ```
 
 # Importing Data
