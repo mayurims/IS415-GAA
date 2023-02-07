@@ -183,29 +183,7 @@ NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
 ### 3.2.6 Initial Visualization
 
 ```{r}
-plot(st_geometry(NGA))
-```
-
-```{r}
-tmap_mode('view')
-tm_shape(NGA)+
-  tm_dots(col="purple", alph = 0.5,
-          size = 0.01) + 
-  tm_view(set.zoom.limits = c(8,14))
-# Use tmap_mode('plot') to create static map
-```
-
-```{r}
-tmap_mode("plot")
-tm_shape(NGA) +
-  tm_borders(alpha = 0.5) +
-  tmap_options(check.and.fix = TRUE) +
-  tm_dots(col="red", size=0.05) +
-  tm_layout(main.title = "State Boundary GIS Data Of Osun, Nigeria",
-          main.title.position = "center",
-          main.title.size = 0.8,
-          frame = TRUE)
-
+plot(st_geometry(NGA)
 ```
 
 # 4.0 Data Wrangling : Aspatial Data
@@ -596,7 +574,7 @@ density_map <- function(raster_object, map_title) {
   tmap_mode("view")
   tm_basemap("OpenStreetMap") +
 tm_shape(raster_object) +
-  tm_raster("v", alpha=0.65) + 
+  tm_raster("v", alpha=0.9) + 
   tm_layout(legend.position = c("right", "bottom"), 
             legend.height = 0.5, 
             legend.width = 0.4,
@@ -637,7 +615,40 @@ tm_shape(kde_wpnonfunctional_raster) +
 
 ## 6.4 Kernel Density Maps Analysis
 
-## 6.5 Nearest Neighbour Analysis
+As we can see in the map in 5.5, both the plots are similar with the Functional Water Point being comparatively a bit more denser (more point) than the Non-Functional Water Point. From the maps above, we can see that both the Functional and Non-Functional waterpoints are spread out, however, they are more concentrated in the center and the upper part of Osun. We don't see that many waterpoints in lower part of Osun.
+
+The Functional Water Points are slightly more spread out compared to the Non Functional Water Points, however, what is interesting to note is that the points in both the maps kind of coincide with each other. That is the points in the Functional Water Point seem to be close to that of the Non-Functional Water Point.
+
+## 6.5 Advantage of Kernel Density Map over Point Map
+
+To understand the advantage of Kernel Density Map over Point Map, we first need to plot the two and compare the differences.
+
+```{r}
+tmap_mode("plot")
+tm_shape(NGA_wp) +
+  tm_borders(alpha = 0.5) +
+  tmap_options(check.and.fix = TRUE) +
+tm_shape(wp_nonfunctional) +
+  tm_dots(col="red", size=0.05) +
+  tm_layout(main.title = "Non-Functional Water Points",
+          main.title.position = "center",
+          main.title.size = 1.2,
+          frame = TRUE)
+```
+
+```{r}
+kde_wpnonfunctional_density_map
+```
+
+With the Kernel Density Map, denser areas with a heavier distribution of Non-Functional Water Points are easily spotted. This is because the kernel density z-estimate helps to smooth out the points in a given area. Compared to the point map which just shows the points. Further, the gradient colour available (ranging from yellow to green) helps in understanding the density/concentration of water pumps in the area. It clearly shows the viewer which are the areas with more non-functional water pumps, however, with the point map, the users have to gauge/estimate which are the densers with more non-functional water points.
+
+Hence to conclude, the Kernal Density provides a quantitative value representing the concentration of points, where as this can only be observed/gauged in Point Map.
+
+-   *With kernel density maps, it takes into account the inverse-distance-weighted counts of points, to represent the concentration of points at a particular location. This cannot be achieved through observation using point maps.*
+
+-   *The inverse-distance-weighted counts is important because in the real-world, childcare centres that are further away from a particular location does not mean that they cannot potentially serve the population. These points should still be taken into account, just that points further away should just be given less weight, as people will have to travel further to access the childcare service. This is exactly what is accounted for with kernel function.*
+
+## 6.6?? Nearest Neighbour Analysis
 
 The 95% confident interval will be used.
 
@@ -672,8 +683,6 @@ clarkevans.test(wp_nonfunctional_ppp,
 ```
 
 **Conclusion :**
-
-## 6.6 Advantage of Kernel Density Map over Point Map
 
 # 7.0 Second-order Spatial Point Patterns Analysis
 
