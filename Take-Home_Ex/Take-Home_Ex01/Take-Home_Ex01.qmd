@@ -183,7 +183,7 @@ NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
 ### 3.2.6 Initial Visualization
 
 ```{r}
-plot(st_geometry(NGA)
+plot(st_geometry(NGA))
 ```
 
 # 4.0 Data Wrangling : Aspatial Data
@@ -698,7 +698,7 @@ For Functional Water Point in Osun Sate
 
 -   **Confidence level : 99%**
 
--   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I\'ve decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
+-   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I've decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
 
 For Non-Functional Water Point in Osun Sate
 
@@ -708,7 +708,7 @@ For Non-Functional Water Point in Osun Sate
 
 -   **Confidence level : 99%**
 
--   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I\'ve decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
+-   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I've decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
 
 ## 7.1 Analysing Spatial Point Process Using G-Function
 

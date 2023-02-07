@@ -34,24 +34,14 @@ stores <- st_read(dsn = "data",
 
 ```{r}
 tmap_mode("view")
-tm_shape(NGA) +
-  tm_dots(col="purple", size=0.05) + 
-  tm_view(set.zoom.limits = c(5,8))
-```
-
-```{r}
-tmap_mode("plot")
-```
-
-```{r}
-tmap_mode("view")
-tm_shape(geoNGA) +
-  tm_dots(col="purple", size=0.05) + 
-  tm_view(set.zoom.limits = c(5,8))
-```
-
-```{r}
-tmap_mode("plot")
+tm_shape(studyArea)+
+  tm_polygons()+
+tm_shape(stores)+
+  tm_dots(col = "Name",
+          size = 0.01,
+          border.col = "black",
+          border.lwd = 0.5)+
+  tm_view(set.zoom.limits = c(12, 16))
 ```
 
 # Local Colocation Quotients (LCLQ)
@@ -79,7 +69,6 @@ LCLQ <- local_colocation(A, B, nb, wt, 49)
 
 # The cbind only works if your dont sort the results (LCLQ). 
 LCLQ_stores <- cbind(stores, LCLQ)
-
 ```
 
 ```{r}
@@ -92,5 +81,4 @@ tm_shape(studyArea) +
             border.col = "black",
             border.lwd = 0.5) + 
   tm_view(set.zoom.limits = c(12,16))
-
 ```
