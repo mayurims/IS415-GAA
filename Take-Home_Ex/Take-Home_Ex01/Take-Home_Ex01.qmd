@@ -688,6 +688,82 @@ clarkevans.test(wp_nonfunctional_ppp,
 
 **Conclusion :**
 
+## 6.7 Colocation of Functional and Non-Functional Water Points
+
+```{r}
+wp_sf_withoutUnknown <- wp_sf_nga %>%  filter(!status_clean=='unknown')
+```
+
+```{r}
+# This is required for Take Home Excercise 3
+nb <- include_self(
+  st_knn(st_geometry(wp_sf_withoutUnknown),6))
+
+wt <- st_kernel_weights(nb,
+                        wp_sf_withoutUnknown,
+                        "gaussian",
+                        adaptive = TRUE)
+
+#FamilyMart <- stores %>%
+#  filter(Name == "Family Mart")
+#A <- FamilyMart$Name
+
+#wp_functional <- wp_sf_nga %>%
+#  filter(status_clean %in%
+#           c("Functional",
+#             "Functional but not in use",
+#             "Functional but needs repair"))
+A <- wp_functional$status_clean
+
+#SevenEleven <- stores %>%
+#  filter(Name == "7-Eleven")
+B <- wp_nonfunctional$status_clean
+
+# LCLQ is a datable. You dont have a unique identifier.
+LCLQ <- local_colocation(A, B, nb, wt, 49)
+
+# The cbind only works if your dont sort the results (LCLQ). 
+LCLQ_stores <- cbind(wp_sf_withoutUnknown, LCLQ)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(NGA) + 
+  tm_polygons() + 
+  tm_shape(LCLQ_stores)+
+    tm_dots(col = "Non.Functional",
+            size = 0.05,
+            border.col = "grey",
+            border.lwd = 0.5) + 
+  tm_view(set.zoom.limits = c(8,11))
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(NGA) + 
+  tm_polygons() + 
+  tm_shape(LCLQ_stores)+
+    tm_dots(col = "Abandoned",
+            size = 0.05,
+            border.col = "grey",
+            border.lwd = 0.5) + 
+  tm_view(set.zoom.limits = c(9,13))
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(NGA) + 
+  tm_polygons() + 
+  tm_shape(LCLQ_stores)+
+    tm_dots(col = "Non.Functional.due.to.dry.season",
+            size = 0.05,
+            border.col = "grey",
+            border.lwd = 0.5) + 
+  tm_view(set.zoom.limits = c(9,11))
+```
+
+The above maps show the colocation of Functional Water Points and Non-Functional Water Points. ELABORATEEE MOREE
+
 # 7.0 Second-order Spatial Point Patterns Analysis
 
 For Functional Water Point in Osun Sate
@@ -724,31 +800,35 @@ plot(G_wp_functional, xlim=c(0,500))
 Performing Complete Spatial Randomness Test
 
 ```{r}
-#G_wp_functional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
+G_wp_functional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
-#plot(G_wp_functional.csr)
+plot(G_wp_functional.csr)
 ```
+
+**Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Functional Water Points are clustered. Hence, we reject the null hypothesis that Functional Water Points are randomly distributed at 99% confident interval.
 
 ### 7.1.2 Non-Functional Water Point
 
 Computing G-function estimation
 
 ```{r}
-#G_wp_nonfunctional = Gest(wp_nonfunctional_ppp, correction = "border")
-#plot(G_wp_nonfunctional, xlim=c(0,500))
+G_wp_nonfunctional = Gest(wp_nonfunctional_ppp, correction = "border")
+plot(G_wp_nonfunctional, xlim=c(0,500))
 ```
 
 Performing Complete Spatial Randomness Test
 
 ```{r}
-#G_wp_nonfunctional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
+G_wp_nonfunctional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
-#plot(G_wp_nonfunctional.csr)
+plot(G_wp_nonfunctional.csr)
 ```
+
+**Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Non Functional Water Points are clustered. Hence, we reject the null hypothesis that Non Functional Water Points are randomly distributed at 99% confident interval.
 
 ## 7.2 Analysing Spatial Point Process using F-Function
 
@@ -838,8 +918,8 @@ Computing L-function estimate
 
 ```{r}
 #L_wp_functional = Lest(wp_functional_ppp, correction = "Ripley")
-#plot(L_wp_functional_ppp, . -r ~ r, 
-     #ylab= "L(d)-r", xlab = "d(m)")
+#plot(L_wp_functional, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)")
 ```
 
 Performing Complete Spatial Randomness
