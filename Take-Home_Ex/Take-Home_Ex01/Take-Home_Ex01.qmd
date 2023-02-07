@@ -613,6 +613,10 @@ tm_shape(kde_wpnonfunctional_raster) +
   tm_raster("v")
 ```
 
+```{r}
+
+```
+
 ## 6.4 Kernel Density Maps Analysis
 
 As we can see in the map in 5.5, both the plots are similar with the Functional Water Point being comparatively a bit more denser (more point) than the Non-Functional Water Point. From the maps above, we can see that both the Functional and Non-Functional waterpoints are spread out, however, they are more concentrated in the center and the upper part of Osun. We don't see that many waterpoints in lower part of Osun.

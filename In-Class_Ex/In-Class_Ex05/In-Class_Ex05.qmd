@@ -33,10 +33,10 @@ stores <- st_read(dsn = "data",
 ## Visualizing the sf layers
 
 ```{r}
-#tmap_mode("view")
-#tm_shape(NGA) +
-  #tm_dots(col="purple", size=0.05) + 
-  #tm_view(set.zoom.limits = c(5,8))
+tmap_mode("view")
+tm_shape(NGA) +
+  tm_dots(col="purple", size=0.05) + 
+  tm_view(set.zoom.limits = c(5,8))
 ```
 
 ```{r}
@@ -44,10 +44,10 @@ tmap_mode("plot")
 ```
 
 ```{r}
-#tmap_mode("view")
-#tm_shape(geoNGA) +
-  #tm_dots(col="purple", size=0.05) + 
-  #tm_view(set.zoom.limits = c(5,8))
+tmap_mode("view")
+tm_shape(geoNGA) +
+  tm_dots(col="purple", size=0.05) + 
+  tm_view(set.zoom.limits = c(5,8))
 ```
 
 ```{r}
