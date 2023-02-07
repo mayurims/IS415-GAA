@@ -11,7 +11,7 @@ execute:
 editor: visual
 ---
 
-# Overview
+# 1.0 Overview
 
 -   Talk about water situation in Nigeria
 
@@ -21,9 +21,11 @@ editor: visual
 
 -   Objective of the assignment and elaborate
 
-# Setup
+![Osun River](https://naijabiography.com/wp-content/uploads/2022/06/goPzeHTDsWsUImM-1600x900-noPad.jpg){fig-align="center"}
 
-## Packages Used
+# 2.0 Setup
+
+## 2.1 Packages Used
 
 -   sf : Used for ..
 
@@ -42,10 +44,10 @@ editor: visual
 -   
 
 ```{r}
-pacman::p_load(kableExtra)
+pacman::p_load(sf, maptools, raster, spatstat, tmap, kableExtra, tidyverse, funModeling)
 ```
 
-## Datasets Used
+## 2.2 Datasets Used
 
 ```{r}
 # initialise a dataframe of our geospatial and aspatial dataset details
@@ -59,56 +61,65 @@ datasets <- data.frame(
          "Geospatial",
          "Geospatial",
          "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
          
-         "Aspatial",
-         "Aspatial",
-         "Aspatial",
          "Aspatial"),
   
-  Name=c("Singapore National Boundary `CostalOutline`",
-         "Master Plan 2014 Subzone Boundary (Web) `MP14_SUBZONE_WEB_PL`",
-         "MRT & LRT Locations Aug 2021 `MRTLRTStnPtt`",
-         "Bus Stop Locations Aug 2021 `BusStop`",
-         "Taxi Stand Locations Aug 2021 `TaxiStop`",
-         "Historic Sites",
-         "Moneychanger Locations",
-         "Monuments",
-         "Museums",
+  Name=c("geoBoundaries-NGA-ADM2",
+         "geoBoundaries-NGA-ADM2",
+         "geoBoundaries-NGA-ADM2",
+         "geoBoundaries-NGA-ADM2",
+         "geoBoundaries-NGA-ADM2",
+         "geoBoundaries-NGA-ADM2",
+         "nga_admbnda_adm2_osgof_20190417",
+         "nga_admbnda_adm2_osgof_20190417",
+         "nga_admbnda_adm2_osgof_20190417",
+         "nga_admbnda_adm2_osgof_20190417",
+         "nga_admbnda_adm2_osgof_20190417",
+         "nga_admbnda_adm2_osgof_20190417",
+         "nga_admbnda_adm2_osgof_20190417",
+         "nga_admbnda_adm2_osgof_20190417",
          
-         "Singapore Airbnb Listings June 2019",
-         "Singapore Airbnb Listings June 2021",
-         "Tourism",
-         "Hotels"),
+         "WPdx"),
   
-  Format=c(".shp", 
+  Format=c(".dbf", 
+           ".geojson", 
+           ".prj", 
+           ".shp", 
+           ".shx", 
+           ".topojson",
+           ".CPG",
+           ".dbf",
+           ".prj",
+           ".sbn", 
+           ".sbx", 
            ".shp", 
            ".shp", 
-           ".shp", 
-           ".shp", 
-           ".kml",
-           ".kml",
-           ".kml",
-           ".kml",
-           
-           ".csv",
-           ".csv",
-           ".csv",
+           ".shx", 
+          
            ".csv"),
   
-  Source=c("[data.gov.sg](https://data.gov.sg/dataset/national-map-polygon)",
-           "[data.gov.sg](https://data.gov.sg/dataset/master-plan-2014-subzone-boundary-web)",
-           "[LTA Data Mall](https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html?searchText=mrt)",
-           "[LTA Data Mall](https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html?searchText=bus%20stop)",
-           "[LTA Data Mall](https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html?searchText=taxi)",
-           "[data.gov.sg](https://data.gov.sg/dataset/historic-sites)",
-           "[data.gov.sg](https://data.gov.sg/dataset/locations-of-money-changer)",
-           "[data.gov.sg](https://data.gov.sg/dataset/monuments)",
-           "[data.gov.sg](https://data.gov.sg/dataset/museums)",
+  Source=c("[geoBoundaries](https://www.geoboundaries.org/index.html#getdata)",
+           "[geoBoundaries](https://www.geoboundaries.org/index.html#getdata)",
+           "[geoBoundaries](https://www.geoboundaries.org/index.html#getdata)",
+           "[geoBoundaries](https://www.geoboundaries.org/index.html#getdata)",
+           "[geoBoundaries](https://www.geoboundaries.org/index.html#getdata)",
+           "[geoBoundaries](https://www.geoboundaries.org/index.html#getdata)",
            
-           "[Inside Airbnb](http://insideairbnb.com/get-the-data.html)",
-           "[Inside Airbnb](http://insideairbnb.com/get-the-data.html)",
-           "[OneMap API](https://www.onemap.gov.sg/docs/)",
-           "[OneMap API](https://www.onemap.gov.sg/docs/)")
+          "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           "[Humanitarian Data Exchange](https://data.humdata.org/dataset/cod-ab-nga)",
+           
+           "[ WPdx Global Data Repositories](https://www.waterpointdata.org/access-data/)")
   )
 
 # with reference to this guide on kableExtra:
@@ -121,18 +132,319 @@ kable(datasets, caption="Datasets Used") %>%
   kable_material("hover", latex_options="scale_down")
 ```
 
-# Data Wrangling : Geospatial Data
+# 3.0 Data Wrangling : Geospatial Data
 
-# Data Wrangling : Aspatial Data
+## 3.1 Importing Geospatial Data
 
 ```{r}
+geoNGA <- st_read("data/geospatial", 
+                  layer = "geoBoundaries-NGA-ADM2") %>%
+  st_transform(crs = 26392)
+```
+
+```{r}
+NGA <- st_read("data/geospatial", 
+                  layer = "nga_admbnda_adm2_osgof_20190417") %>%
+  filter(ADM1_EN == "Osun") %>%
+  st_transform(crs = 26392)
+```
+
+(Talk about Geodetic CRS)
+
+## 3.2 Data Pre-processing
+
+### 3.2.1 Dropping Invalid Dimensions
+
+There are no invalid dimensions, so not required
+
+### 3.2.2 Invalid Geometries
+
+```{r}
+# function breakdown:
+# the st_is_valid function checks whether a geometry is valid which returns the indices of certain values based on logical conditions
+# length returns the length of data objects
+
+# checks for the number of geometries that are NOT valid
+length(which(st_is_valid(geoNGA) == FALSE))
+```
+
+```{r}
+length(which(st_is_valid(NGA) == FALSE))
+```
+
+None of the values are Invalid, so we are good to go!!
+
+### 3.2.3 Excluding Redundant Fields
+
+Whyy do we remove thesee redundant fields??
+
+```{r}
+NGA <- NGA %>%
+  select(c(3:4, 8:9))
+```
+
+### 3.2.4 Missing Values
+
+```{r}
+# the rowSums(is.na(sg_sf))!=0 checks every row if there are NA values, returning TRUE or FALSE
+# the sg_sf [] 'wrapper' prints said rows that contain NA values
+geoNGA[rowSums(is.na(geoNGA))!=0,]
+```
+
+```{r}
+NGA[rowSums(is.na(NGA))!=0,]
+```
+
+### 3.2.5 Checking for Duplicated Names
+
+```{r}
+geoNGA$ADM2_EN[duplicated(geoNGA$ADM2_EN)==TRUE]
+```
+
+```{r}
+NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
+```
+
+### 3.2.7 Initial Visualization
+
+```{r}
+plot(st_geometry(geoNGA))
+```
+
+```{r}
+plot(st_geometry(NGA))
+```
+
+```{r}
+tmap_mode("plot")
+tm_shape(geoNGA) +
+  tm_borders(alpha = 0.5) +
+  tmap_options(check.and.fix = TRUE) +
+tm_shape(NGA) +
+  tm_dots(col="red", size=0.05) +
+  tm_layout(main.title = "Nigeria Water Point Data",
+          main.title.position = "center",
+          main.title.size = 1.2,
+          frame = TRUE)
 
 ```
 
-# Exploratory Spatial Data Analysis
+# 4.0 Data Wrangling : Aspatial Data
 
-# Specific KDE Maps
+## 4.1 Importing Aspatial Data
 
-# Second-order Spatial Point Patterns Analysis
+```{r}
+wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
+  filter(`#clean_country_name` == "Nigeria" & `#clean_adm1` == "Osun")
+```
 
-# Acknowledgments
+## **4.2 Converting water point data into sf point features**
+
+Converting an aspatial data into an sf data.frame involves two steps.
+
+First, we need to convert the [wkt](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) field into sfc field by using `st_as_sfc()` data type.
+
+```{r}
+wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
+wp_nga
+```
+
+Next, we will convert the tibble data.frame into an sf object by using `st_sf()`. It is also important for us to include the referencing system of the data into the sf object.
+
+```{r}
+wp_sf <- st_sf(wp_nga, crs=4326)
+wp_sf
+```
+
+```{r}
+wp_sf <- wp_sf %>%
+  st_transform(crs = 26392)
+```
+
+## 4.3 Data Wrangling for Water Data Point
+
+```{r}
+freq(data = wp_sf,
+     input = '#status_clean')
+```
+
+```{r}
+wp_sf_nga <- wp_sf %>% 
+  rename(status_clean = '#status_clean') %>%
+  select(status_clean) %>%
+  mutate(status_clean = replace_na(
+    status_clean, "unknown"))
+```
+
+### 4.3.1 Extracting Water Point Data
+
+Now we are ready to extract the water point data according to their status.
+
+The code chunk below is used to extract functional water point.
+
+```{r}
+wp_functional <- wp_sf_nga %>%
+  filter(status_clean %in%
+           c("Functional",
+             "Functional but not in use",
+             "Functional but needs repair"))
+```
+
+The code chunk below is used to extract nonfunctional water point.
+
+```{r}
+wp_nonfunctional <- wp_sf_nga %>%
+  filter(status_clean %in%
+           c("Abandoned/Decommissioned",
+             "Abandoned",
+             "Non-Functional due to dry season",
+             "Non-Functional",
+             "Non functional due to dry season"))
+```
+
+The code chunk below is used to extract water point with unknown status.
+
+```{r}
+wp_unknown <- wp_sf_nga %>%
+  filter(status_clean == "unknown")
+```
+
+Performing a quick EDA on the derived sfa.dataframes
+
+```{r}
+freq(data = wp_functional,
+     input = 'status_clean')
+```
+
+```{r}
+freq(data = wp_nonfunctional,
+     input = 'status_clean')
+```
+
+```{r}
+freq(data = wp_unknown,
+     input = 'status_clean')
+```
+
+### 4.3.2 Performing Point-In Polygon Count
+
+Next, we want to find out the number of total, functional, nonfunctional and unknown water points in each LGA. This is performed in the following code chunk. First, it identifies the functional water points in each LGA by using `st_intersects()` of sf package. Next, `length()` is used to calculate the number of functional water points that fall inside each LGA.
+
+```{r}
+NGA_wp <- NGA %>% 
+  mutate(`total_wp` = lengths(
+    st_intersects(NGA, wp_sf_nga))) %>%
+  mutate(`wp_functional` = lengths(
+    st_intersects(NGA, wp_functional))) %>%
+  mutate(`wp_nonfunctional` = lengths(
+    st_intersects(NGA, wp_nonfunctional))) %>%
+  mutate(`wp_unknown` = lengths(
+    st_intersects(NGA, wp_unknown)))
+NGA_wp
+```
+
+We then visualise attributes by using statistcal graph. In this code chunk below, appropriate functions of [**ggplot2**](https://ggplot2.tidyverse.org/) package is used to reveal the distribution of total water points by LGA in histogram.
+
+```{r}
+ggplot(data = NGA_wp,
+       aes(x = total_wp)) + 
+  geom_histogram(bins=20,
+                 color="black",
+                 fill="light blue") +
+  geom_vline(aes(xintercept=mean(
+    total_wp, na.rm=T)),
+             color="red", 
+             linetype="dashed", 
+             size=0.8) +
+  ggtitle("Distribution of total water points by LGA") +
+  xlab("No. of water points") +
+  ylab("No. of\nLGAs") +
+  theme(axis.title.y=element_text(angle = 0))
+```
+
+# 5.0 Combined Data Wrangling : Geospatial & Aspatial Data
+
+## 5.1 Converting sf data frames to sp's Spatial\* Class
+
+```{r}
+wp_functional_spatial = as_Spatial(wp_functional)
+wp_nonfunctional_spatial = as_Spatial(wp_nonfunctional)
+NGA_spatial <- as_Spatial(NGA)
+```
+
+```{r}
+NGA_spatial
+```
+
+```{r}
+wp_functional_spatial
+```
+
+```{r}
+wp_nonfunctional_spatial
+```
+
+## 5.2 Converting from Spatial\* classes to sp format
+
+```{r}
+# convert into respective sp (in our case, either polygons or points)
+wp_functional_sp <- as(wp_functional_spatial, "SpatialPoints")
+wp_nonfunctional_sp <- as(wp_nonfunctional_spatial, "SpatialPoints")
+NGA_sp <-as(NGA_spatial, "SpatialPolygons")
+```
+
+```{r}
+wp_functional_sp
+```
+
+```{r}
+wp_nonfunctional_sp
+```
+
+```{r}
+NGA_sp
+```
+
+## 5.3 **Converting from sp format to spatstat ppp format**
+
+Note that there is no way of coercing SpatialPolygons to ppp format - nor is there any need to. As such, we won't be including our 'base maps', geoNGA and NGA.
+
+```{r}
+# from sp object, convert into ppp format
+wp_functional_ppp <- as(wp_functional_sp, "ppp")
+wp_nonfunctional_ppp <- as(wp_nonfunctional_sp, "ppp")
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(wp_nonfunctional_ppp)
+plot(wp_functional_ppp)
+```
+
+## 5.4 Creating Owin Object
+
+```{r}
+NGA_owin <- as(NGA_sp, "owin")
+plot(NGA_owin)
+```
+
+## **5.5 Combining point events object and owin object**
+
+```{r}
+wp_functional_ppp = wp_functional_ppp[NGA_owin]
+wp_nonfunctional_ppp = wp_nonfunctional_ppp[NGA_owin]
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(wp_nonfunctional_ppp)
+plot(wp_functional_ppp)
+```
+
+# 6.0 Exploratory Spatial Data Analysis
+
+# 7.0 Specific KDE Maps
+
+# 8.0 Second-order Spatial Point Patterns Analysis
+
+# 9.0 Acknowledgments
