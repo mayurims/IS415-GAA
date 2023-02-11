@@ -13,13 +13,9 @@ editor: visual
 
 # 1.0 Overview
 
--   Talk about water situation in Nigeria
+Water is an essential part of our life, without which we won't be able to survive for more than 3 days. Living in Singapore, we have access to clean drinkable water 24/7 and as a result we don't realize the struggles of people who don't have access to clean water at all. An an example of such are the people in Nigeria. Despite 70% of Nigerians having access to basic water services, more than half of them are contamintated ([Reference](https://www.unicef.org/nigeria/press-releases/nearly-one-third-nigerian-children-do-not-have-enough-water-meet-their-daily-needs#:~:text=Although%20about%2070%20per%20cent,available%20to%20a%20Nigerian%20daily.)).
 
--   Talk about water situation in Oson state
-
--   Talk about the Osun river and its myth
-
--   Objective of the assignment and elaborate
+For this assignment, we will be focusing on the State of Osun in Nigeria. Osun, located in the southwestern Nigeria is bounded to the east by Ekiti and Ondo states, Kwara on the north, Ogun to the south and to the west by Oyo State ([Reference](https://www.britannica.com/place/Osun)). Their economy is mainly based on the agriculture and it inhibits the Osun River, a sacred river. However, in the recent years, the river has been polluted by the several mining activities from the surrounding communities ([Reference](https://www.aljazeera.com/gallery/2022/9/2/photos-the-pollution-of-nigerias-sacred-osun-river)). Hence, it is integral for us to address the issue of providing clean and sustainable water to the people of Osun. Through this assignment, I aim to apply the relevant spatial point pattern analysis learned in class to analyse the Functional and Non-Functional water points in State of Osun, Nigera.
 
 ![Osun River](https://naijabiography.com/wp-content/uploads/2022/06/goPzeHTDsWsUImM-1600x900-noPad.jpg){fig-align="center"}
 
@@ -27,27 +23,37 @@ editor: visual
 
 ## 2.1 Packages Used
 
--   sf : Used for ..
+-   sf : Used for importing geospatial data, assigning or transforming coordinate systems, and converting geospatial and aspatial data into a sf data frame
 
--   tidyverse : Used for ..
+-   tidyverse : Used for transforming and better presentation of Data
 
--   tmap :
+-   tmap : Used for plotting static point patterns maps or interactive maps
 
--   spatstat :
+-   spatstat : Used for point-pattern analysis
 
--   raster :
+-   raster : Used to read, write, manipulate, analyse and model gridded spatial data
 
--   maptools :
+-   maptools : Used to provide a set of tools for manipulating geographic data
 
--   rgdal :
+-   rgdal : ??? DID I USE IT?
 
--   
+-   kableExtra : Used for table customization
+
+-   funModeling : Used to data cleaning, importance variable, analysis and model performance
+
+-   *sfdep : FINDDD OUTTTT!!*
 
 ```{r}
-pacman::p_load(sf, maptools, raster, spatstat, tmap, kableExtra, tidyverse, funModeling)
+pacman::p_load(sf, maptools, raster, spatstat, tmap, kableExtra, tidyverse, funModeling, sfdep)
 ```
 
 ## 2.2 Datasets Used
+
+The below diagram shows the datasets used for the Assignment. We have two types of data - geospatial and aspatial.
+
+For the Aspatial data, we are extracting the data from [WPdx Global Data Repositories](https://www.waterpointdata.org/access-data/). The data source consists of two types of data - WPdx-Basic and WPdx+, for the purpose of this project, we will be using the WPdx+.
+
+For the Geospatial data, we will be using the Nigeria Level-2 Administrative Boundary polygon features GIS data. There are two data source for this - [Humanitarian Data Exchange](https://data.humdata.org/) (HDE) and [geoBoundaries](https://www.geoboundaries.org/).
 
 ```{r}
 # initialise a dataframe of our geospatial and aspatial dataset details
@@ -134,24 +140,74 @@ kable(datasets, caption="Datasets Used") %>%
 
 # 3.0 Data Wrangling : Geospatial Data
 
-## 3.1 Importing Geospatial Data
+## 3.1 Importing and Transforming Geospatial Data
+
+We will begin by importing Geospatial data into R by using the st_read() of sf package. It imports the nga_admbnda_adm2_osgof_20190417 shapefile into R as a polygon data frame. We provide 2 arguments - dsn (which is the data path) and layer (the shapefile name)
+
+We use the st_transform() to perform projection transaction.
 
 ```{r}
-NGA <- st_read("data/geospatial", 
-                  layer = "nga_admbnda_adm2_osgof_20190417") %>%
-  filter(ADM1_EN == "Osun") %>%
-  st_transform(crs = 26392)
+geoNGA <- st_read("data/geospatial", 
+                  layer = "geoBoundaries-NGA-ADM2")
 ```
 
-(Talk about CRS)
+```{r}
+NGA <- st_read(dsn = "data/geospatial", 
+                  layer = "nga_admbnda_adm2_osgof_20190417")
+```
+
+We can use the glimpse() of dplyr to know more about the associated attribute information of the dataframe.
+
+```{r}
+glimpse(geoNGA)
+```
+
+```{r}
+glimpse(NGA)
+```
+
+From the attributed visible, we can see the HDE source (NGA) has a column called 'ADM1_EN' which can be used to filter for water points in Osun, Nigeria. However, this is not present in the geoBoundaries dataset. As a result, we will be using the Humanitarian Data Exchange source, where we get the files - nga_admbnda_adm2.
+
+NGA sf data.frame consists of many redundent fields. The code chunk below uses `select()` of dplyr to retain column 3, 4, 8 and 9.
+
+```{r}
+NGA <- NGA %>%
+  select(c(3:4, 8:9))
+```
+
+We then use the filter() to filter out the polygon features of Osun.
+
+```{r}
+NGA <- NGA %>% filter(ADM1_EN == "Osun")
+```
+
+Now, we use the st_crs() to check the coordinate system of the data. As we can see, it uses the WGS 84 coordinate system. The data is using a Geographic projected system, however, this is system is not appropriate since we need to use distance and area measures.
+
+```{r}
+st_crs(NGA)
+```
+
+Hence, we use st_transform() and not st_set_crs() as st_set_crs() assigns the EPSG code to the dataframe, however, now we need to transform the dataframe from geographic to projected coordinate system. We will be using crs=26392 (found from the [EPSG](https://epsg.io/?q=Nigeria%20kind%3APROJCRS)for Nigeria).
+
+```{r}
+NGA <- st_transform(NGA, crs = 26392)
+```
+
+Verify that the CRS of NGA dataframe has changed.
+
+```{r}
+st_crs(NGA)
+```
 
 ## 3.2 Data Pre-processing
 
 ### 3.2.1 Dropping Invalid Dimensions
 
-There are no invalid dimensions, so not required
+Since, we only have one dataframe, there are no invalid dimensions, and hence, this step is not required.
 
 ### 3.2.2 Invalid Geometries
+
+The st_is_valid() function checks whether a geometry is valid and returns the indices. Whereas, the length gives you a count of the indices with invalid geometries.
 
 ```{r}
 length(which(st_is_valid(NGA) == FALSE))
@@ -159,28 +215,17 @@ length(which(st_is_valid(NGA) == FALSE))
 
 None of the values are Invalid, so we are good to go!!
 
-### 3.2.3 Excluding Redundant Fields
+### 3.2.3 Checking for Duplicated Names
 
-Whyy do we remove thesee redundant fields??
-
-```{r}
-NGA <- NGA %>%
-  select(c(3:4, 8:9))
-```
-
-### 3.2.4 Missing Values
-
-```{r}
-NGA[rowSums(is.na(NGA))!=0,]
-```
-
-### 3.2.5 Checking for Duplicated Names
+We need to check for duplicate name in the data main data fields. Using `duplicated()` of Base R, we can flag out LGA names that might be duplicated as shown in the code chunk below.
 
 ```{r}
 NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
 ```
 
-### 3.2.6 Initial Visualization
+There are no duplicated values, so we are good to go!
+
+### 3.2.4 Initial Visualization
 
 ```{r}
 plot(st_geometry(NGA))
@@ -189,6 +234,8 @@ plot(st_geometry(NGA))
 # 4.0 Data Wrangling : Aspatial Data
 
 ## 4.1 Importing Aspatial Data
+
+Since the WPdx data is in CSV format, we will use read_csv() of readr package to import WPdx.csv. The output is called wp_nga and is a tibble dataframe
 
 ```{r}
 wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
@@ -199,19 +246,21 @@ wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
 
 Converting an aspatial data into an sf data.frame involves two steps.
 
-First, we need to convert the [wkt](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) field into sfc field by using `st_as_sfc()` data type.
+First, we need to convert the [wkt](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) field into sfc field by using `st_as_sfc()` function. The function stores it in a tibble data format.
 
 ```{r}
 wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
 wp_nga
 ```
 
-Next, we will convert the tibble data.frame into an sf object by using `st_sf()`. It is also important for us to include the referencing system of the data into the sf object.
+Next, we use the st_sf() to convert the tibble data.frame into an sf object. It is also important for us to include the referencing system of the data into the sf object.
 
 ```{r}
 wp_sf <- st_sf(wp_nga, crs=4326)
 wp_sf
 ```
+
+Like step [3.2 Data Pre-processing], we transform the projection from wgs84 to the appropriate projected coordinate system of Nigeria.
 
 ```{r}
 wp_sf <- wp_sf %>%
@@ -220,10 +269,16 @@ wp_sf <- wp_sf %>%
 
 ## 4.3 Data Wrangling for Water Data Point
 
+Exploratory Data Analysis (EDA) helps to gain initial understanding of the data. The `freq()` of funModeling package is used to reveal the distribution of water point status visually.
+
 ```{r}
 freq(data = wp_sf,
      input = '#status_clean')
 ```
+
+The diagram shows that there are nine classes present in the 'status_clean' field. Hence, now we will be performing data wrangling tasks to create 3 data object - Functional, Non-Functional and Unknown.
+
+We use rename() function from the dplyr package to rename the column from *#status_clean* to *status_clean* for easier handling in subsequent steps. `select()` is used to include `status_clean` in the output sf data.frame. We use the `mutate()` and `replace_na()` functions to recode all the NA values in `status_clean` into unknown.
 
 ```{r}
 wp_sf_nga <- wp_sf %>% 
@@ -283,9 +338,24 @@ freq(data = wp_unknown,
      input = 'status_clean')
 ```
 
+We can see from the map below, the proportion of functional and non-functional water is quite similar.
+
+```{r}
+tmap_mode("view")
+tm_shape(wp_functional) +
+ tm_dots(col = "status_clean",
+         pal = "blue",
+         title = "Functional") +
+tm_shape(wp_nonfunctional) +
+ tm_dots(col = "status_clean",
+         pal = "red",
+         title = "Non-Functional") +
+  tm_view(set.zoom.limits = c(8.5,15)) 
+```
+
 ### 4.3.2 Performing Point-In Polygon Count
 
-Next, we want to find out the number of total, functional, nonfunctional and unknown water points in each LGA. This is performed in the following code chunk. First, it identifies the functional water points in each LGA by using `st_intersects()` of sf package. Next, `length()` is used to calculate the number of functional water points that fall inside each LGA.
+Next, we want to find out the number of total, functional, nonfunctional and unknown water points in Osun State. This is performed in the following code chunk. First, it identifies the functional water points in each LGA by using `st_intersects()` of sf package. Next, `length()` is used to calculate the number of functional water points that fall inside each LGA.
 
 ```{r}
 NGA_wp <- NGA %>% 
@@ -300,7 +370,7 @@ NGA_wp <- NGA %>%
 NGA_wp
 ```
 
-We then visualise attributes by using statistcal graph. In this code chunk below, appropriate functions of [**ggplot2**](https://ggplot2.tidyverse.org/) package is used to reveal the distribution of total water points by LGA in histogram.
+We then visualise attributes by using statistcal graph. We use functions of [**ggplot2**](https://ggplot2.tidyverse.org/) package to reveal the distribution of total water points in Osun's LGA using histogram.
 
 ```{r}
 ggplot(data = NGA_wp,
@@ -313,7 +383,7 @@ ggplot(data = NGA_wp,
              color="red", 
              linetype="dashed", 
              size=0.8) +
-  ggtitle("Distribution of total water points by LGA") +
+  ggtitle("Distribution of total water points") +
   xlab("No. of water points") +
   ylab("No. of\nLGAs") +
   theme(axis.title.y=element_text(angle = 0))
@@ -321,7 +391,11 @@ ggplot(data = NGA_wp,
 
 # 5.0 Combined Data Wrangling : Geospatial & Aspatial Data
 
+This is an essential step, which is the process of getting data from its raw input into a format which can be used for anlaysis.
+
 ## 5.1 Converting sf data frames to sp's Spatial\* Class
+
+We use the as_spatial() function to convert the three geospatial data from simple feature data frame to sp's Spatial\* class.
 
 ```{r}
 wp_functional_spatial = as_Spatial(wp_functional)
@@ -342,6 +416,8 @@ wp_nonfunctional_spatial
 ```
 
 ## 5.2 Converting from Spatial\* classes to sp format
+
+In order to use the **spatstat** for our analysis, we need our data to be in the ***ppp*** object form. Hence, we first need to convert them into Spatial object first and then into ppp object.
 
 ```{r}
 # convert into respective sp (in our case, either polygons or points)
@@ -364,13 +440,15 @@ NGA_sp
 
 ## 5.3 **Converting from sp format to spatstat ppp format**
 
-Note that there is no way of coercing SpatialPolygons to ppp format - nor is there any need to. As such, we won't be including our 'base maps', geoNGA and NGA.
+We can't convert SpatialPolygons to ppp format - nor is there any need to. Hence, we won't be including our 'base map', NGA.
 
 ```{r}
 # from sp object, convert into ppp format
 wp_functional_ppp <- as(wp_functional_sp, "ppp")
 wp_nonfunctional_ppp <- as(wp_nonfunctional_sp, "ppp")
 ```
+
+The below map shows the point paterns for both functional and non-functional water points.
 
 ```{r}
 par(mfrow=c(1,2))
@@ -392,12 +470,16 @@ Since there is no duplication, we dont have to apply the process of Jittering.
 
 ## 5.4 Creating Owin Object
 
+We need to now confine the analysis with a geographical area - Osun State and we do this by creating a object called **owin** which represent the polygonal region. The below code covert the SpatialPolygon (NGA_sp) created into an owin object.
+
 ```{r}
 NGA_owin <- as(NGA_sp, "owin")
 plot(NGA_owin)
 ```
 
 ## **5.5 Combining point events object and owin object**
+
+In this step, we extract the functional and non-functional water points that are located within Osun, Nigeria. This combines both the point and polygon feature into one ppp object class.
 
 ```{r}
 wp_functional_ppp = wp_functional_ppp[NGA_owin]
@@ -412,15 +494,23 @@ plot(wp_functional_ppp)
 
 # 6.0 Exploratory Spatial Data Analysis
 
-Talk about what we are going to do here, and what is the objectivee
+In this section, we use the [Hands-on Excercise 04](https://r4gdsa.netlify.app/chap04.html) to help
+
+-   Derive kernel density maps of functional and non-functional water points. Using appropriate tmap functions,
+
+-   Display the kernel density maps on openstreetmap of Osub State, Nigeria.
+
+-   Describe the spatial patterns revealed by the kernel density maps. Highlight the advantage of kernel density map over point map.
 
 ## 6.1 Kernel Density Estimation
 
 ### 6.1.1 Computing Kernel Density Estimation
 
+There are two types of bandwidth methods - Fixed (Automatic) and Adaptive bandwidth method. These methods employ different uniform bases in density calculation.
+
 **Computing using Automatic Bandwidth selection method**
 
-Explain (Hands on ex 5)
+We are using the below code to compute the kernel density by using the bw.diggle() - an automatic selection method and the smoothing method - kernel.
 
 ```{r}
 kde_wpfunctional_bw <- density(wp_functional_ppp,
@@ -457,41 +547,47 @@ plot(kde_wpnonfunctional_adaptive,
      ribside=c("right"))
 ```
 
-**Comparing Automated and Adapting Bandwith Methods (side-by-side)**
+**Comparing Automated and Adapting Bandwidth Methods (side-by-side)**
+
+::: panel-tabset
+## Functional Water Point
 
 ```{r}
 par(mfrow=c(1,2))
 plot(kde_wpfunctional_bw,
-     main = "Functional Water Points",
+     main = "Functional Water Points - Automated",
      ribside=c("right"))
 plot(kde_wpfunctional_adaptive,
-     main = "Non-Functional Water Points",
+     main = "Functional Water Points - Adaptive",
      ribside=c("right"))
 ```
+
+## Non-Functional Water Point
 
 ```{r}
 par(mfrow=c(1,2))
 plot(kde_wpnonfunctional_bw,
-     main = "Functional Water Points",
+     main = "Non-Functional Water Points - Automated",
      ribside=c("right"))
 plot(kde_wpnonfunctional_adaptive,
-     main = "Non-Functional Water Points",
+     main = "Non-Functional Water Points - Adaptive",
      ribside=c("right"))
 ```
+:::
 
 ### 6.1.2 Rescalling KDE Values
 
-As we can those values are small, so *rescale()* is used to covert the unit of measurement from meter to kilometer. ELABORATEE
+As we can the KDE values are small (ranging from 0 to 0.000035). This is because the default unit of measurement of svy21 is in meter. As a result, the density values computed is in "number of points per square meter". So *rescale()* is used to covert the unit of measurement from meter to kilometer.
 
 ```{r}
 wp_functional_ppp_km <- rescale(wp_functional_ppp, 1000, "km")
 wp_nonfunctional_ppp_km <- rescale(wp_nonfunctional_ppp, 1000, "km")
 ```
 
-Now we replot the graphs
+Now we re-plot the graphs
 
 ::: panel-tabset
-Automated Bandwitch Method
+## Automated Bandwidth Method
 
 ```{r}
 kde_wpfunctional_km <- density(wp_functional_ppp_km,
@@ -510,10 +606,9 @@ plot(kde_wpfunctional_bw,
 plot(kde_wpnonfunctional_bw,
      main = "Non-Functional Water Points",
      ribside=c("right"))
-
 ```
 
-Adaptive Bandwidth Method
+## Adaptive Bandwidth Method
 
 ```{r}
 kde_wpfunctional_adaptive_km <- adaptive.density(wp_functional_ppp_km, method="kernel")
@@ -527,9 +622,10 @@ plot(kde_wpfunctional_adaptive,
 plot(kde_wpnonfunctional_adaptive,
      main = "Non-Functional Water Points",
      ribside=c("right"))
-
 ```
 :::
+
+For this assignment, we will be using the Automated Bandwidth method because it defines its base in geographical space, where as the Adaptive method defines it in population ([Reference](https://www.tandfonline.com/doi/full/10.1080/13658810902950625)). As we learned in [Chapter 04](https://r4gdsa.netlify.app/chap04.html), Automated Bandwidth is very sensitive to highly skew distribution of spatial point patterns over geographical units (e.g - urban versus rural). However, since we don't have highly skewed data (as seen in the Distribution Graph of Water Points), we can use Fixed/Automated Bandwidth method.
 
 ## 6.2 Converting KDE output into grid object
 
@@ -567,7 +663,7 @@ kde_wpnonfunctional_raster
 
 ## 6.3 Kernel Density Maps on OpenStreetMap
 
-Now, as the assignment requirements has specified, we should plot our kernel density maps on OpenStreetMap, aiming to describe the spatial patterns revealed as well as highlight the advantage of kernel density map over point map. Since we'll be plotting a lot of kernel density maps, let's create a function:
+Now, as the assignment requirements has specified, we should plot our kernel density maps on OpenStreetMap. Since we'll be plotting a lot of kernel density maps, let's create a function:
 
 ```{r}
 density_map <- function(raster_object, map_title) {
@@ -591,13 +687,22 @@ kde_wpfunctional_density_map <- density_map(kde_wpfunctional_raster, map_title =
 kde_wpnonfunctional_density_map <- density_map(kde_wpnonfunctional_raster, map_title = "Non-Functional Water Points in Osun State")
 ```
 
+::: panel-tabset
+## Functional Density Map
+
 ```{r}
 kde_wpfunctional_density_map
 ```
 
+## Non-Functional Density Map
+
 ```{r}
 kde_wpnonfunctional_density_map
 ```
+:::
+
+::: panel-tabset
+## Functional Density Map
 
 ```{r}
 tmap_mode('plot')
@@ -606,20 +711,19 @@ tm_shape(kde_wpfunctional_raster) +
   tm_raster("v")
 ```
 
+## Non-Functional Density Map
+
 ```{r}
 tmap_mode('plot')
 tm_basemap("OpenStreetMap") +
 tm_shape(kde_wpnonfunctional_raster) +
   tm_raster("v")
 ```
-
-```{r}
-
-```
+:::
 
 ## 6.4 Kernel Density Maps Analysis
 
-As we can see in the map in 5.5, both the plots are similar with the Functional Water Point being comparatively a bit more denser (more point) than the Non-Functional Water Point. From the maps above, we can see that both the Functional and Non-Functional waterpoints are spread out, however, they are more concentrated in the center and the upper part of Osun. We don't see that many waterpoints in lower part of Osun.
+As we can see in the map in \[5.5 Combining point events object and owin object\], both the plots are similar with the Functional Water Point being comparatively a bit more denser (more point) than the Non-Functional Water Point. From the maps above, we can see that both the Functional and Non-Functional waterpoints are spread out, however, they are more concentrated in the center and the upper part of Osun. We don't see that many waterpoints in lower part of Osun.
 
 The Functional Water Points are slightly more spread out compared to the Non Functional Water Points, however, what is interesting to note is that the points in both the maps kind of coincide with each other. That is the points in the Functional Water Point seem to be close to that of the Non-Functional Water Point.
 
@@ -704,25 +808,12 @@ wt <- st_kernel_weights(nb,
                         "gaussian",
                         adaptive = TRUE)
 
-#FamilyMart <- stores %>%
-#  filter(Name == "Family Mart")
-#A <- FamilyMart$Name
-
-#wp_functional <- wp_sf_nga %>%
-#  filter(status_clean %in%
-#           c("Functional",
-#             "Functional but not in use",
-#             "Functional but needs repair"))
 A <- wp_functional$status_clean
 
-#SevenEleven <- stores %>%
-#  filter(Name == "7-Eleven")
 B <- wp_nonfunctional$status_clean
 
-# LCLQ is a datable. You dont have a unique identifier.
 LCLQ <- local_colocation(A, B, nb, wt, 49)
 
-# The cbind only works if your dont sort the results (LCLQ). 
 LCLQ_stores <- cbind(wp_sf_withoutUnknown, LCLQ)
 ```
 
@@ -830,131 +921,44 @@ plot(G_wp_nonfunctional.csr)
 
 **Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Non Functional Water Points are clustered. Hence, we reject the null hypothesis that Non Functional Water Points are randomly distributed at 99% confident interval.
 
-## 7.2 Analysing Spatial Point Process using F-Function
+## 7.2 Analysing Spatial Point Process Using L-Function
 
-### 7.2.1 Functional Water Points
-
-Computing F-function estimation
+### 7.2.1 Functional Water Point
 
 ```{r}
-#F_wp_functional = Fest(wp_functional_ppp)
-#plot(F_wp_functional)
-```
-
-Performing Complete Spatial Randomness Test
-
-```{r}
-#F_wp_functional.csr <- envelope(wp_functional_ppp, Fest, nsim = 999)
+#|eval: false
+#L_wp = Lest(wp_functional_ppp, correction = "Ripley")
+#plot(L_wp, . -r ~ r, 
+     #ylab= "L(d)-r", xlab = "d(m)")
 ```
 
 ```{r}
-#plot(F_wp_functional.csr)
-```
-
-### 7.2.2 Non-Functional Water Points
-
-Computing F-function estimation
-
-```{r}
-#F_wp_nonfunctional = Fest(wp_nonfunctional_ppp, correction="best")
-#plot(F_wp_functional)
-```
-
-Performing Complete Spatial Randomness Test
-
-```{r}
-#F_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Fest, nsim = 999)
+#|eval: false
+#L_wp.csr <- envelope(wp_functional_ppp, Lest, nsim = 39, rank = 1, glocal=TRUE)
 ```
 
 ```{r}
-#plot(F_wp_nonfunctional.csr)
+#|eval: false
+#plot(L_wp.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
 ```
 
-## 7.3 Analysing Spatial Point Process Using K-Function
-
-### 7.3.1 Functional Water Point
-
-Computing K-function estimate
+## Non functional L test
 
 ```{r}
-#K_wp_functional = Kest(wp_functional_ppp, correction = "Ripley")
-#plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
-```
-
-Performing Complete Spatial Randomness
-
-```{r}
-#K_wp_functional.csr <- envelope(wp_functional_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+#L_nonwp = Lest(wp_nonfunctional_ppp, correction = "Ripley")
+#plot(L_ck_wp, . -r ~ r, 
+     #ylab= "L(d)-r", xlab = "d(m)")
 ```
 
 ```{r}
-#plot(K_wp_functional.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
-```
-
-### 7.3.1 Non-Functional Water Point
-
-Computing K-function estimate
-
-```{r}
-#K_wp_nonfunctional = Kest(wp_nonfunctional_ppp, correction = "Ripley")
-#plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
-```
-
-Performing Complete Spatial Randomness
-
-```{r}
-#K_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Kest, nsim = 99, rank = 1, glocal=TRUE)
+#|eval: false
+#L_nonwp.csr <- envelope(wp_nonfunctional_ppp, Lest, nsim = 39, rank = 1, glocal=TRUE)
 ```
 
 ```{r}
-#plot(K_wp_nonfunctional.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+#|eval: false
+#plot(L_nonwp.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
 ```
-
-## 7.4 Analysing Spatial Point Process using L-Function
-
-### 7.4.1 Functional Water Point
-
-Computing L-function estimate
-
-```{r}
-#L_wp_functional = Lest(wp_functional_ppp, correction = "Ripley")
-#plot(L_wp_functional, . -r ~ r, 
-     ylab= "L(d)-r", xlab = "d(m)")
-```
-
-Performing Complete Spatial Randomness
-
-```{r}
-#L_wp_functional.csr <- envelope(wp_functional_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
-```
-
-```{r}
-#plot(L_wp_functional.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
-```
-
-### 7.4.1 Non-Functional Water Point
-
-Computing L-function estimate
-
-```{r}
-#L_wp_nonfunctional = Lest(wp_nonfunctional_ppp, correction = "Ripley")
-#plot(L_tm, . -r ~ r, 
-     #ylab= "L(d)-r", xlab = "d(m)", 
-     #xlim=c(0,1000))
-```
-
-Performing Complete Spatial Randomness
-
-```{r}
-#L_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
-```
-
-```{r}
-#plot(L_wp_nonfunctional.csr, . - r ~ r, 
-     #xlab="d", ylab="L(d)-r", xlim=c(0,500))
-```
-
-Analysis :
 
 # 8.0 Spatial Correlation Analysis
 
@@ -963,26 +967,28 @@ Analysis :
 Convert sf data frames to sp's Spatial class
 
 ```{r}
-wp_spatial <- as_Spatial(wp_sf_nga)
+#wp_spatial <- as_Spatial(wp_sf_nga)
 ```
 
 Convert spatial class into generic sp class
 
 ```{r}
-wp_sp <- as(wp_spatial, "SpatialPoints")
+#wp_sp <- as(wp_spatial, "SpatialPoints")
 ```
 
 Converting generic sp format into spatstat's ppp format
 
 ```{r}
-wp_ppp <- as(wp_sp, "ppp")
-wp_ppp
+#wp_ppp <- as(wp_sp, "ppp")
+#wp_ppp
 ```
 
 ```{r}
-plot(wp_ppp)
+#plot(wp_ppp)
 ```
 
-Analysing Spatial Point using L-Function
+```{r}
+#wp_ppp_km <- rescale(wp_ppp, 1000, "km")
+```
 
-# 9.0 Acknowledgments
+# 9.0 References
