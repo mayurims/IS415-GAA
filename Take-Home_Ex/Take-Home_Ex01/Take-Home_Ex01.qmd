@@ -164,28 +164,28 @@ glimpse(geoNGA)
 glimpse(NGA)
 ```
 
-From the attributed visible, we can see the HDE source (NGA) has a column called 'ADM1_EN' which can be used to filter for water points in Osun, Nigeria. However, this is not present in the geoBoundaries dataset. As a result, we will be using the Humanitarian Data Exchange source, where we get the files - nga_admbnda_adm2.
+From the attributes visible, we can see the HDE source (NGA) has a column called 'ADM1_EN' which can be used to filter for water points in Osun, Nigeria. However, this is not present in the geoBoundaries dataset. As a result, we will only be using the Humanitarian Data Exchange source - nga_admbnda_adm2.
 
-NGA sf data.frame consists of many redundent fields. The code chunk below uses `select()` of dplyr to retain column 3, 4, 8 and 9.
+However, NGA sf data.frame consists of many redundent fields. Hence, the code chunk below uses `select()` of dplyr to retain column 3, 4, 8 and 9.
 
 ```{r}
 NGA <- NGA %>%
   select(c(3:4, 8:9))
 ```
 
-We then use the filter() to filter out the polygon features of Osun.
+We then use the `filter()` to filter out the polygon features of Osun.
 
 ```{r}
 NGA <- NGA %>% filter(ADM1_EN == "Osun")
 ```
 
-Now, we use the st_crs() to check the coordinate system of the data. As we can see, it uses the WGS 84 coordinate system. The data is using a Geographic projected system, however, this is system is not appropriate since we need to use distance and area measures.
+Now, we use the `st_crs()` to check the coordinate system of the data. As we can see, it uses the WGS 84 coordinate system. The data is using a Geographic projected system, however, this is system is not appropriate since we need to use distance and area measures.
 
 ```{r}
 st_crs(NGA)
 ```
 
-Hence, we use st_transform() and not st_set_crs() as st_set_crs() assigns the EPSG code to the dataframe, however, now we need to transform the dataframe from geographic to projected coordinate system. We will be using crs=26392 (found from the [EPSG](https://epsg.io/?q=Nigeria%20kind%3APROJCRS)for Nigeria).
+Hence, we use `st_transform()` and not `st_set_crs()` as `st_set_crs()` assigns the EPSG code to the data frame. And we need to transform the data frame from geographic to projected coordinate system. We will be using crs=26392 (found from the [EPSG](https://epsg.io/?q=Nigeria%20kind%3APROJCRS) for Nigeria).
 
 ```{r}
 NGA <- st_transform(NGA, crs = 26392)
@@ -205,7 +205,7 @@ Since, we only have one dataframe, there are no invalid dimensions, and hence, t
 
 ### 3.2.2 Invalid Geometries
 
-The st_is_valid() function checks whether a geometry is valid and returns the indices. Whereas, the length gives you a count of the indices with invalid geometries.
+The `st_is_valid()` function checks whether a geometry is valid and returns the indices. Whereas, the `length()` gives you a count of the indices with invalid geometries.
 
 ```{r}
 length(which(st_is_valid(NGA) == FALSE))
@@ -233,7 +233,7 @@ plot(st_geometry(NGA))
 
 ## 4.1 Importing Aspatial Data
 
-Since the WPdx data is in CSV format, we will use read_csv() of readr package to import WPdx.csv. The output is called wp_nga and is a tibble dataframe
+Since the WPdx data is in CSV format, we will use `read_csv()` of readr package to import WPdx.csv. The output is called wp_nga and is a tibble dataframe
 
 ```{r}
 wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
@@ -251,7 +251,7 @@ wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
 wp_nga
 ```
 
-Next, we use the st_sf() to convert the tibble data.frame into an sf object. It is also important for us to include the referencing system of the data into the sf object.
+Next, we use the `st_sf()` to convert the tibble data.frame into an sf object. It is also important for us to include the referencing system of the data into the sf object.
 
 ```{r}
 wp_sf <- st_sf(wp_nga, crs=4326)
@@ -276,7 +276,7 @@ freq(data = wp_sf,
 
 The diagram shows that there are nine classes present in the 'status_clean' field. Hence, now we will be performing data wrangling tasks to create 3 data object - Functional, Non-Functional and Unknown.
 
-We use rename() function from the dplyr package to rename the column from *#status_clean* to *status_clean* for easier handling in subsequent steps. `select()` is used to include `status_clean` in the output sf data.frame. We use the `mutate()` and `replace_na()` functions to recode all the NA values in `status_clean` into unknown.
+We use `rename()` function from the dplyr package to rename the column from *#status_clean* to *status_clean* for easier handling in subsequent steps. `select()` is used to include `status_clean` in the output sf data.frame. We use the `mutate()` and `replace_na()` functions to re-code all the NA values in `status_clean` into unknown.
 
 ```{r}
 wp_sf_nga <- wp_sf %>% 
@@ -425,11 +425,11 @@ tm_shape(NGA_wp_total) +
 
 # 5.0 Combined Data Wrangling : Geospatial & Aspatial Data
 
-This is an essential step, which is the process of getting data from its raw input into a format which can be used for anlaysis.
+This is an essential step - the process of getting data from its raw input into a format which can be used for analysis.
 
 ## 5.1 Converting sf data frames to sp's Spatial\* Class
 
-We use the as_spatial() function to convert the three geospatial data from simple feature data frame to sp's Spatial\* class.
+We use the `as_spatial()` function to convert the three geospatial data from simple feature data frame to sp's Spatial\* class.
 
 ```{r}
 wp_functional_spatial = as_Spatial(wp_functional)
@@ -482,7 +482,7 @@ wp_functional_ppp <- as(wp_functional_sp, "ppp")
 wp_nonfunctional_ppp <- as(wp_nonfunctional_sp, "ppp")
 ```
 
-The below map shows the point paterns for both functional and non-functional water points.
+The below map shows the point patterns for both functional and non-functional water points.
 
 ```{r}
 par(mfrow=c(1,2))
@@ -500,7 +500,7 @@ any(duplicated(wp_functional_ppp))
 any(duplicated(wp_nonfunctional_ppp)) 
 ```
 
-Since there is no duplication, we dont have to apply the process of Jittering.
+Since there is no duplication, we don't have to apply the process of Jittering.
 
 ## 5.4 Creating Owin Object
 
@@ -546,12 +546,12 @@ There are two types of bandwidth methods - Fixed (Automatic) and Adaptive bandwi
 
 **Computing using Automatic Bandwidth selection method**
 
-We can compute the kernel density by using the bw.ppl() or bw.diggle(). As learned in Chapter 04, the ppl() method is prefered for patterns consisting predominantly of prominent clusters. Whereas, bw.diggle() is best used to detect a single tight cluster in the midst of random noise.
+We can compute the kernel density by using the `bw.ppl()` or `bw.diggle()`. As learned in Chapter 04, the `ppl()` method is prefered for patterns consisting predominantly of prominent clusters. Whereas, `bw.diggle()` is best used to detect a single tight cluster in the midst of random noise.
 
-From the maps below, we can see that bw.ppl() method is better able to identify the prominent clusters as the data does not contain a single tight cluster. Hence, we will be using the bw.ppl() method.
+From the maps below, we can see that `bw.ppl()` method is better able to identify the prominent clusters as the data does not contain a single tight cluster. Hence, we will be using the `bw.ppl()` method.
 
 ::: panel-tabset
-**bw.diggle() Method**
+**`bw.diggle()` Method**
 
 ```{r}
 kde_wpfunctional_bw_diggle <- density(wp_functional_ppp,
@@ -573,7 +573,7 @@ plot(kde_wpnonfunctional_bw_diggle,
      ribside=c("right"))
 ```
 
-**bw.ppl() Method**
+**`bw.ppl()` Method**
 
 ```{r}
 kde_wpfunctional_bw <- density(wp_functional_ppp,
@@ -642,7 +642,7 @@ plot(kde_wpnonfunctional_adaptive,
 
 ### 6.1.2 Rescalling KDE Values
 
-As we can the KDE values are small (ranging from 0 to 0.000035). This is because the default unit of measurement of svy21 is in meter. As a result, the density values computed is in "number of points per square meter". So *rescale()* is used to covert the unit of measurement from meter to kilometer.
+As we can the KDE values are small (ranging from 0 to 0.000035). This is because the default unit of measurement of svy21 is in meter. As a result, the density values computed is in "number of points per square meter". So `rescale()` is used to covert the unit of measurement from meter to kilometer.
 
 ```{r}
 wp_functional_ppp_km <- rescale(wp_functional_ppp, 1000, "km")
@@ -704,7 +704,7 @@ spplot(gridded_wpnonfunctional)
 
 ### 6.2.1 Converting Gridded Output into Raster
 
-Next, we convert the gridded kernal density objects into RasterLayer object by using *raster()* of **raster** package.
+Next, we convert the gridded kernal density objects into RasterLayer object by using `raster()` of **raster** package.
 
 ```{r}
 kde_wpfunctional_raster <- raster(gridded_wpfunctional)
@@ -790,7 +790,7 @@ tm_shape(kde_wpnonfunctional_raster) +
 
 ## 6.4 Kernel Density Maps Analysis
 
-As we can see in the map in [4.3 Data Wrangling for Water Data Point], the number of functional and non-functional water points are quite close, with there being 2319 Functional and 2008 Non-functional water points. As a result, both the density maps are similar. But what is interesting to note is that, there seems to be more concentrated density points for the Non-Functional water points, compared to the Functional water points. Further, from the density maps above, we can see that both the Functional and Non-Functional water points are relatively more concentrated in the center and the upper part of Osun and we don't see that many water points in lower part of Osun. This patter is reflected in the map in \[5.5 Combining point events object and owin object\], where we see less concentration of points in the lower part of Osun.
+As we can see in the map in [4.3 Data Wrangling for Water Data Point], the number of functional and non-functional water points are quite close, with there being 2319 Functional and 2008 Non-functional water points. As a result, both the density maps are similar. But what is interesting to note is that, there seems to be more concentrated density points for the Non-Functional water points, compared to the Functional water points. Further, from the density maps above, we can see that both the Functional and Non-Functional water points are relatively more concentrated in the center and the upper part of Osun and we don't see that many water points in lower part of Osun. This patter is reflected in the map in \[[5.5 Combining point events object and owin object]\], where we see less concentration of points in the lower part of Osun.
 
 ## 6.5 Advantage of Kernel Density Map over Point Map
 
@@ -821,16 +821,15 @@ Hence to conclude, the Kernal Density provides a quantitative value representing
 
 ## 6.6 Colocation of Functional and Non-Functional Water Points
 
-To find the colocation of functional and non-functional water point, the 'unknown' water points are not required, and hence, we use the filter() to remove them.
+To find the colocation of functional and non-functional water point, the 'unknown' water points are not required, and hence, we use the `filter()` to remove them.
 
 ```{r}
 wp_sf_withoutUnknown <- wp_sf_nga %>%  filter(!status_clean=='unknown')
 ```
 
-In the code chunk below, [`st_knn()`](https://sfdep.josiahparry.com/reference/st_knn.html) of sfdep package is used to determine the k (i.e. 6) nearest neighbours for given point geometry. The function [`st_kernel_weights()`](https://sfdep.josiahparry.com/reference/st_kernel_weights.html) is used to derive a weights list by using a kernel function. To compute LCLQ, the reference point data must be in either character or vector list. We create two vector lists - one of Functional and for Non-Functional water point and are called A and B respectively. The code [`local_colocation()`](https://sfdep.josiahparry.com/reference/local_colocation.html) os used to compute the LCLQ values for each water point. Before we can plot the LCLQ values their p-values, we need to join the output of `local_colocation()` to the stores sf data.frame.
+In the code chunk below, `st_knn()` of sfdep package is used to determine the k (i.e. 6) nearest neighbors for given point geometry. The function `st_kernel_weights()` is used to derive a weights list by using a kernel function. To compute LCLQ, the reference point data must be in either character or vector list. We create two vector lists - one of Functional and for Non-Functional water point and are called A and B respectively. The code `local_colocation()` is used to compute the LCLQ values for each water point. Before we can plot the LCLQ values their p-values, we need to join the output of `local_colocation()` to the stores sf data.frame.
 
 ```{r}
-# This is required for Take Home Excercise 3
 nb <- include_self(
   st_knn(st_geometry(wp_sf_withoutUnknown),6))
 
@@ -886,7 +885,7 @@ tm_shape(NGA) +
   tm_view(set.zoom.limits = c(9,11))
 ```
 
-The above maps show the colocation of Functional Water Points and Non-Functional Water Points. This means that Non-functional water points in color ('Non-Functional', 'Abandoned', 'Non-functional due to dry season') are surrounded by several Functional water points and hence, are colocated. The above code evaluates each Non-Functional water point individually for colocation with the presence of Functional water points. Hence, if the number of Non-functional water points within the neighbourhood of Functional water points are higher than the global proportion of Non-Functional water points, the colocation point will be higher. As we can see from the above maps, there are many Non-functional water points colocated with Functional water points compared to that of 'Abandoned' or 'Non-functional due to dry season'.
+The above maps show the colocation of Functional Water Points and Non-Functional Water Points. This means that Non-functional water points in color ('Non-Functional', 'Abandoned', 'Non-functional due to dry season') are surrounded by several Functional water points and hence, are colocated. The above code evaluates each Non-Functional water point individually for colocation with the presence of Functional water points. Hence, if the number of Non-functional water points within the neighborhood of Functional water points are higher than the global proportion of Non-Functional water points, the colocation point will be higher. As we can see from the above maps, there are many Non-functional water points colocated with Functional water points compared to that of 'Abandoned' or 'Non-functional due to dry season'.
 
 # 7.0 Second-order Spatial Point Patterns Analysis
 
@@ -914,7 +913,7 @@ For Non-Functional Water Point in Osun Sate
 
 ## 7.1 Analysing Spatial Point Process Using G-Function
 
-We will be using the G-Function for analyse the spatial point process. This function deals with the cumulative distribution of the nearest neighbor distances. It computes the nearest neighbor distance for each event, which is then sorted from smallest to largest. This is used to construct a cumilative distribution.
+We will be using the G-Function for analyse the spatial point process. This function deals with the cumulative distribution of the nearest neighbor distances. It computes the nearest neighbor distance for each event, which is then sorted from smallest to largest. This is used to construct a cumulative distribution.
 
 ### 7.1.1 Functional Water Point
 
@@ -957,46 +956,7 @@ G_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Gest, nsim = 999)
 plot(G_wp_nonfunctional.csr)
 ```
 
-**Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Non-Functional Water Points are clustered. Hence, we reject the null hypothesis that Non Functional Water Points are randomly distributed at 99% confident interval.
-
-## 7.2 Analysing Spatial Point Process Using L-Function
-
-### 7.2.1 Functional Water Point
-
-```{r}
-#|eval: false
-#L_wp = Lest(wp_functional_ppp, correction = "Ripley")
-#plot(L_wp, . -r ~ r, 
-     #ylab= "L(d)-r", xlab = "d(m)")
-```
-
-```{r}
-#|eval: false
-#L_wp.csr <- envelope(wp_functional_ppp, Lest, nsim = 39, rank = 1, glocal=TRUE)
-```
-
-```{r}
-#|eval: false
-#plot(L_wp.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
-```
-
-## Non functional L test
-
-```{r}
-#L_nonwp = Lest(wp_nonfunctional_ppp, correction = "Ripley")
-#plot(L_ck_wp, . -r ~ r, 
-     #ylab= "L(d)-r", xlab = "d(m)")
-```
-
-```{r}
-#|eval: false
-#L_nonwp.csr <- envelope(wp_nonfunctional_ppp, Lest, nsim = 39, rank = 1, glocal=TRUE)
-```
-
-```{r}
-#|eval: false
-#plot(L_nonwp.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
-```
+**Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Non-Functional Water Points are clustered. Hence, we reject the null hypothesis that Non Functional Water Points are randomly distributed at 99% confident interval. Since the G(r) is above the randomization envelope, that is there are a lot of functional water points that intervent distances, as a result the curve climbs up very quickly. This suggests clustering.
 
 # 8.0 Spatial Correlation Analysis
 
@@ -1025,7 +985,7 @@ wp_ppp
 plot(wp_ppp)
 ```
 
-For this analysis, we will be working with marked data, and we know that the values are categorical (different water points), we need to ensure that the marked field is of factor data type. However, as seen from the output, our `status_clean` field is of chr data type, not factor! Hence, we will use the *as.factor()* function:
+For this analysis, we will be working with marked data, and we know that the values are categorical (different water points), we need to ensure that the marked field is of factor data type. However, as seen from the output, our `status_clean` field is of chr data type, not factor! Hence, we will use the `as.factor()` function:
 
 ```{r}
 wp_spatial@data$status_clean <-as.factor(wp_spatial@data$status_clean)
@@ -1045,7 +1005,7 @@ wp_spatial_marked_ppp = wp_spatial_marked_ppp[NGA_owin]
 plot(wp_spatial_marked_ppp, which.marks = "status_clean")
 ```
 
-We use the density() to compute the kernel density objects, and the use plot() to plot it out. Further, we convert the meter to kilometers using rescale()
+We use the `density()` to compute the kernel density objects, and the use plot() to plot it out. Further, we convert the meter to kilometers using `rescale()`
 
 ```{r}
 plot((density(split(rescale(wp_spatial_marked_ppp, 1000)))))
@@ -1079,7 +1039,7 @@ levels(marks(wp_spatial_marked_ppp))[levels(marks(wp_spatial_marked_ppp)) == "Fu
 levels(marks(wp_spatial_marked_ppp))[levels(marks(wp_spatial_marked_ppp)) == "Functional but not in use"] <- "Functional"
 ```
 
-Now, upon running the below code, we can see that all the levels are categorisied into our 3 desired levels.
+Now, upon running the below code, we can see that all the levels are categorized into our 3 desired levels.
 
 ```{r}
 levels(wp_spatial_marked_ppp[["marks"]])
@@ -1095,9 +1055,9 @@ plot(density(split(wp_spatial_marked_ppp)))
 
 From the above density maps, we can observe a relationship between Functional and Non-Functional water points - in the sense that the there seems to be a lot of water Functional water points where ever there are Non-Functional water points. They seem to coexist together quite a lot of times, and hence indicating some level of dependence between them. Hence, to investigate this, we will be using the Cross K-Function.
 
--   **H0:** The distribution of Functional and Non-Functional water points are spatially independent
+-   **H~0~:** The spatial distribution of Functional and Non-Functional water points are spatially independent
 
--   **H1:** The distribution of Functional and Non-Functional water points are not spatially independent
+-   **H~1~:** The spatial distribution of Functional and Non-Functional water points are not spatially independent
 
 -   **Confidence Level:** 99%
 
@@ -1116,10 +1076,10 @@ wp_spatial_marked_ppp_Lcross.csr <- envelope(wp_spatial_marked_ppp,
 ```
 
 ```{r}
-plot(wp_spatial_marked_ppp_Lcross.csr, xlab="distance(m)", xlim=c(0,500))
+plot(wp_spatial_marked_ppp_Lcross.csr, xlab="distance(km)", xlim=c(0,500))
 ```
 
-Conclusion : The Functional and Non-Functional water point are not statistically independent as the empirical k-cross line is outside of the envelope of 99% confidence level, and for that we reject the null hypothesis.
+Conclusion : The Functional and Non-Functional water point are not statistically independent as the empirical k-cross line is outside of the envelope of 99% confidence level, and for that we reject the null hypothesis. This lends weight to what we noticed in our previous maps, where the location of the Functional and Non-Functional water points seem to coincide. And hence, the relation between spatial distribution of Functional and Non-Functional water points is not independent.
 
 # 9.0 References
 
