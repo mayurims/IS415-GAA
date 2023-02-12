@@ -35,13 +35,11 @@ For this assignment, we will be focusing on the State of Osun in Nigeria. Osun, 
 
 -   maptools : Used to provide a set of tools for manipulating geographic data
 
--   rgdal : ??? DID I USE IT?
-
 -   kableExtra : Used for table customization
 
 -   funModeling : Used to data cleaning, importance variable, analysis and model performance
 
--   *sfdep : FINDDD OUTTTT!!*
+-   sfdep :Used for functions creates not present in spdep.
 
 ```{r}
 pacman::p_load(sf, maptools, raster, spatstat, tmap, kableExtra, tidyverse, funModeling, sfdep)
@@ -389,6 +387,42 @@ ggplot(data = NGA_wp,
   theme(axis.title.y=element_text(angle = 0))
 ```
 
+## 4.4 Choropleth Mapping
+
+We will be calculating the proportion of Functional and Non-Functional water points and mapping them to see which area of Osun has more proportions of functional and non-functional water points.
+
+```{r}
+NGA_wp_total <- NGA_wp %>%
+  mutate(pct_functional = wp_functional/total_wp) %>%
+  mutate(pct_nonfunctional = wp_nonfunctional/total_wp)
+```
+
+```{r}
+tm_shape(NGA_wp_total) +
+  tm_fill("pct_functional",
+          n = 10,
+          style = "equal",
+          palette = "Blues",
+          legend.hist = TRUE) +
+  tm_borders(lwd = 0.1,
+             alpha = 1) +
+  tm_layout(main.title = "Rate map of functional water point by LGAs",
+            legend.outside = TRUE)
+```
+
+```{r}
+tm_shape(NGA_wp_total) +
+  tm_fill("pct_nonfunctional",
+          n = 10,
+          style = "equal",
+          palette = "Blues",
+          legend.hist = TRUE) +
+  tm_borders(lwd = 0.1,
+             alpha = 1) +
+  tm_layout(main.title = "Rate map of non-functional water point by LGAs",
+            legend.outside = TRUE)
+```
+
 # 5.0 Combined Data Wrangling : Geospatial & Aspatial Data
 
 This is an essential step, which is the process of getting data from its raw input into a format which can be used for anlaysis.
@@ -492,6 +526,8 @@ plot(wp_nonfunctional_ppp)
 plot(wp_functional_ppp)
 ```
 
+### 
+
 # 6.0 Exploratory Spatial Data Analysis
 
 In this section, we use the [Hands-on Excercise 04](https://r4gdsa.netlify.app/chap04.html) to help
@@ -510,17 +546,45 @@ There are two types of bandwidth methods - Fixed (Automatic) and Adaptive bandwi
 
 **Computing using Automatic Bandwidth selection method**
 
-We are using the below code to compute the kernel density by using the bw.diggle() - an automatic selection method and the smoothing method - kernel.
+We can compute the kernel density by using the bw.ppl() or bw.diggle(). As learned in Chapter 04, the ppl() method is prefered for patterns consisting predominantly of prominent clusters. Whereas, bw.diggle() is best used to detect a single tight cluster in the midst of random noise.
+
+From the maps below, we can see that bw.ppl() method is better able to identify the prominent clusters as the data does not contain a single tight cluster. Hence, we will be using the bw.ppl() method.
+
+::: panel-tabset
+**bw.diggle() Method**
+
+```{r}
+kde_wpfunctional_bw_diggle <- density(wp_functional_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+kde_wpnonfunctional_bw_diggle <- density(wp_nonfunctional_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+
+
+par(mfrow=c(1,2))
+plot(kde_wpfunctional_bw_diggle,
+     main = "Functional Water Points",
+     ribside=c("right"))
+plot(kde_wpnonfunctional_bw_diggle,
+     main = "Non-Functional Water Points",
+     ribside=c("right"))
+```
+
+**bw.ppl() Method**
 
 ```{r}
 kde_wpfunctional_bw <- density(wp_functional_ppp,
-                              sigma=bw.diggle,
+                              sigma=bw.ppl,
                               edge=TRUE,
                             kernel="gaussian") 
 kde_wpnonfunctional_bw <- density(wp_nonfunctional_ppp,
-                              sigma=bw.diggle,
+                              sigma=bw.ppl,
                               edge=TRUE,
                             kernel="gaussian") 
+
 
 par(mfrow=c(1,2))
 plot(kde_wpfunctional_bw,
@@ -530,6 +594,7 @@ plot(kde_wpnonfunctional_bw,
      main = "Non-Functional Water Points",
      ribside=c("right"))
 ```
+:::
 
 **Computing using Adaptive Bandwidth selection method**
 
@@ -591,11 +656,11 @@ Now we re-plot the graphs
 
 ```{r}
 kde_wpfunctional_km <- density(wp_functional_ppp_km,
-                              sigma=bw.diggle,
+                              sigma=bw.ppl,
                               edge=TRUE,
                             kernel="gaussian") 
 kde_wpnonfunctional_km <- density(wp_nonfunctional_ppp_km,
-                              sigma=bw.diggle,
+                              sigma=bw.ppl,
                               edge=TRUE,
                             kernel="gaussian") 
 
@@ -625,7 +690,7 @@ plot(kde_wpnonfunctional_adaptive,
 ```
 :::
 
-For this assignment, we will be using the Automated Bandwidth method because it defines its base in geographical space, where as the Adaptive method defines it in population ([Reference](https://www.tandfonline.com/doi/full/10.1080/13658810902950625)). As we learned in [Chapter 04](https://r4gdsa.netlify.app/chap04.html), Automated Bandwidth is very sensitive to highly skew distribution of spatial point patterns over geographical units (e.g - urban versus rural). However, since we don't have highly skewed data (as seen in the Distribution Graph of Water Points), we can use Fixed/Automated Bandwidth method.
+For this assignment, we will be using the Automated Bandwidth method because it defines its base in geographical space, where as the Adaptive method defines it in population ([Reference](https://www.tandfonline.com/doi/full/10.1080/13658810902950625)). As we learned in [Chapter 04](https://r4gdsa.netlify.app/chap04.html), Automated Bandwidth is very sensitive to highly skew distribution of spatial point patterns over geographical units (e.g - urban versus rural). However, since we don't have highly skewed data (as seen in the distribution graph in [4.3.2 Performing Point-In Polygon Count]), we can use Fixed/Automated Bandwidth method.
 
 ## 6.2 Converting KDE output into grid object
 
@@ -638,6 +703,8 @@ spplot(gridded_wpnonfunctional)
 ```
 
 ### 6.2.1 Converting Gridded Output into Raster
+
+Next, we convert the gridded kernal density objects into RasterLayer object by using *raster()* of **raster** package.
 
 ```{r}
 kde_wpfunctional_raster <- raster(gridded_wpfunctional)
@@ -723,9 +790,7 @@ tm_shape(kde_wpnonfunctional_raster) +
 
 ## 6.4 Kernel Density Maps Analysis
 
-As we can see in the map in \[5.5 Combining point events object and owin object\], both the plots are similar with the Functional Water Point being comparatively a bit more denser (more point) than the Non-Functional Water Point. From the maps above, we can see that both the Functional and Non-Functional waterpoints are spread out, however, they are more concentrated in the center and the upper part of Osun. We don't see that many waterpoints in lower part of Osun.
-
-The Functional Water Points are slightly more spread out compared to the Non Functional Water Points, however, what is interesting to note is that the points in both the maps kind of coincide with each other. That is the points in the Functional Water Point seem to be close to that of the Non-Functional Water Point.
+As we can see in the map in [4.3 Data Wrangling for Water Data Point], the number of functional and non-functional water points are quite close, with there being 2319 Functional and 2008 Non-functional water points. As a result, both the density maps are similar. But what is interesting to note is that, there seems to be more concentrated density points for the Non-Functional water points, compared to the Functional water points. Further, from the density maps above, we can see that both the Functional and Non-Functional water points are relatively more concentrated in the center and the upper part of Osun and we don't see that many water points in lower part of Osun. This patter is reflected in the map in \[5.5 Combining point events object and owin object\], where we see less concentration of points in the lower part of Osun.
 
 ## 6.5 Advantage of Kernel Density Map over Point Map
 
@@ -748,55 +813,21 @@ tm_shape(wp_nonfunctional) +
 kde_wpnonfunctional_density_map
 ```
 
-With the Kernel Density Map, denser areas with a heavier distribution of Non-Functional Water Points are easily spotted. This is because the kernel density z-estimate helps to smooth out the points in a given area. Compared to the point map which just shows the points. Further, the gradient colour available (ranging from yellow to green) helps in understanding the density/concentration of water pumps in the area. It clearly shows the viewer which are the areas with more non-functional water pumps, however, with the point map, the users have to gauge/estimate which are the densers with more non-functional water points.
+With the Kernel Density Map, denser areas with a heavier distribution of Non-Functional Water Points are easily spotted. This is because the kernel density z-estimate helps to smooth out the points in a given area. Compared to the point map which just shows the points. Further, the gradient colour available (ranging from yellow to green) helps in understanding the density/concentration of water pumps in the area. It clearly shows the viewer which are the areas with more non-functional water pumps, however, with the point map, the users have to gauge/estimate which are the denser with more non-functional water points.
+
+Further, another advantage of Kernel Density Maps is that it uses the Inverse Distance Weighed method which is estimating cell values by using a linearly weighted combination of a set of sample points ([Reference](https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-idw-works.htm#:~:text=Inverse%20distance%20weighted%20(IDW)%20interpolation,of%20a%20locationally%20dependent%20variable.)). This is quite useful, because it takes into consideration of water points that are further away (from the residential area) and hence, people might have to travel further to access the water points. And this is accounted by the kernel function, and not the Point Map.
 
 Hence to conclude, the Kernal Density provides a quantitative value representing the concentration of points, where as this can only be observed/gauged in Point Map.
 
--   *With kernel density maps, it takes into account the inverse-distance-weighted counts of points, to represent the concentration of points at a particular location. This cannot be achieved through observation using point maps.*
+## 6.6 Colocation of Functional and Non-Functional Water Points
 
--   *The inverse-distance-weighted counts is important because in the real-world, childcare centres that are further away from a particular location does not mean that they cannot potentially serve the population. These points should still be taken into account, just that points further away should just be given less weight, as people will have to travel further to access the childcare service. This is exactly what is accounted for with kernel function.*
-
-## 6.6?? Nearest Neighbour Analysis
-
-The 95% confident interval will be used.
-
-The test hypotheses for Functional Water Point is :
-
-**H~0~ :** The distribution of Functional Water Point in Osun State is randomly distributed.
-
-**H~1~ :** The distribution of Functional Water Point in Osun State is not randomly distributed.
-
-```{r}
-clarkevans.test(wp_functional_ppp,
-                correction="none",
-                clipregion="NGA_owin",
-                alternative=c("clustered"),
-                nsim=99)
-```
-
-**Conclusion :**
-
-The test hypotheses for Non-Functional Water Point is :
-
-**H~0~ :** The distribution of Non-Functional Water Point in Osun State is randomly distributed.
-
-**H~1~ :** The distribution of Non-Functional Water Point in Osun State is not randomly distributed.
-
-```{r}
-clarkevans.test(wp_nonfunctional_ppp,
-                correction="none",
-                clipregion="nga_owin",
-                alternative=c("clustered"),
-                nsim=99)
-```
-
-**Conclusion :**
-
-## 6.7 Colocation of Functional and Non-Functional Water Points
+To find the colocation of functional and non-functional water point, the 'unknown' water points are not required, and hence, we use the filter() to remove them.
 
 ```{r}
 wp_sf_withoutUnknown <- wp_sf_nga %>%  filter(!status_clean=='unknown')
 ```
+
+In the code chunk below, [`st_knn()`](https://sfdep.josiahparry.com/reference/st_knn.html) of sfdep package is used to determine the k (i.e. 6) nearest neighbours for given point geometry. The function [`st_kernel_weights()`](https://sfdep.josiahparry.com/reference/st_kernel_weights.html) is used to derive a weights list by using a kernel function. To compute LCLQ, the reference point data must be in either character or vector list. We create two vector lists - one of Functional and for Non-Functional water point and are called A and B respectively. The code [`local_colocation()`](https://sfdep.josiahparry.com/reference/local_colocation.html) os used to compute the LCLQ values for each water point. Before we can plot the LCLQ values their p-values, we need to join the output of `local_colocation()` to the stores sf data.frame.
 
 ```{r}
 # This is required for Take Home Excercise 3
@@ -816,6 +847,8 @@ LCLQ <- local_colocation(A, B, nb, wt, 49)
 
 LCLQ_stores <- cbind(wp_sf_withoutUnknown, LCLQ)
 ```
+
+The below map plots the LCLQ analysis
 
 ```{r}
 tmap_mode("view")
@@ -853,31 +886,35 @@ tm_shape(NGA) +
   tm_view(set.zoom.limits = c(9,11))
 ```
 
-The above maps show the colocation of Functional Water Points and Non-Functional Water Points. ELABORATEEE MOREE
+The above maps show the colocation of Functional Water Points and Non-Functional Water Points. This means that Non-functional water points in color ('Non-Functional', 'Abandoned', 'Non-functional due to dry season') are surrounded by several Functional water points and hence, are colocated. The above code evaluates each Non-Functional water point individually for colocation with the presence of Functional water points. Hence, if the number of Non-functional water points within the neighbourhood of Functional water points are higher than the global proportion of Non-Functional water points, the colocation point will be higher. As we can see from the above maps, there are many Non-functional water points colocated with Functional water points compared to that of 'Abandoned' or 'Non-functional due to dry season'.
 
 # 7.0 Second-order Spatial Point Patterns Analysis
 
 For Functional Water Point in Osun Sate
 
--   **H0: The distribution of the** Functional Water Point**s are randomly distributed**
+-   **H~0~:** The distribution of the Functional Water Points are randomly distributed
 
--   **H1: The distribution of the** Functional Water Points **are not randomly distributed**
+-   **H~1~:** The distribution of the Functional Water Points are not randomly distributed
 
--   **Confidence level : 99%**
+-   **Confidence level :** 99%
 
--   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I've decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
+-   **Significance level :** 0.01
 
 For Non-Functional Water Point in Osun Sate
 
--   **H0: The distribution of the Non-**Functional Water Point**s are randomly distributed**
+-   **H~0~:** The distribution of the Non-Functional Water Points are randomly distributed
 
--   **H1: The distribution of the Non-**Functional Water Points **are not randomly distributed**
+-   **H~1~:** The distribution of the Non-Functional Water Points are not randomly distributed
 
--   **Confidence level : 99%**
+-   **Confidence level :** 99%
 
--   **Significance level : 0.01 *In light that 0.05 is the most common level of significance, I've decided to make it slightly stricter and use 0.01 - I believe a 1% risk of an incorrect hypothesis is good enough, especially considering the trade-offs between sensitivity and false positives for this hypothesis testing***
+-   **Significance level :** 0.01
+
+-   The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
 
 ## 7.1 Analysing Spatial Point Process Using G-Function
+
+We will be using the G-Function for analyse the spatial point process. This function deals with the cumulative distribution of the nearest neighbor distances. It computes the nearest neighbor distance for each event, which is then sorted from smallest to largest. This is used to construct a cumilative distribution.
 
 ### 7.1.1 Functional Water Point
 
@@ -898,7 +935,7 @@ G_wp_functional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
 plot(G_wp_functional.csr)
 ```
 
-**Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Functional Water Points are clustered. Hence, we reject the null hypothesis that Functional Water Points are randomly distributed at 99% confident interval.
+**Conclusion:** The gray band shows for every distance, the smallest value and the largest value for of G(r) that is obtained out of 1000 simulations. The observed G(r) is far above the G(theo) as well as the envelope - indicating that Functional Water Points are clustered. Hence, we reject the null hypothesis that Functional Water Points are randomly distributed at 99% confident interval. Since the G(r) is above the randomization envelope, that is there are a lot of functional water points that intervent distances, as a result the curve climbs up very quickly. This suggests clustering.
 
 ### 7.1.2 Non-Functional Water Point
 
@@ -912,14 +949,15 @@ plot(G_wp_nonfunctional, xlim=c(0,500))
 Performing Complete Spatial Randomness Test
 
 ```{r}
-G_wp_nonfunctional.csr <- envelope(wp_functional_ppp, Gest, nsim = 999)
+# eval = FALSE
+G_wp_nonfunctional.csr <- envelope(wp_nonfunctional_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
 plot(G_wp_nonfunctional.csr)
 ```
 
-**Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Non Functional Water Points are clustered. Hence, we reject the null hypothesis that Non Functional Water Points are randomly distributed at 99% confident interval.
+**Conclusion:** The observed G(r) is far above the G(theo) as well as the envelope - indicating that Non-Functional Water Points are clustered. Hence, we reject the null hypothesis that Non Functional Water Points are randomly distributed at 99% confident interval.
 
 ## 7.2 Analysing Spatial Point Process Using L-Function
 
@@ -962,33 +1000,133 @@ plot(G_wp_nonfunctional.csr)
 
 # 8.0 Spatial Correlation Analysis
 
-8.1 Data Pre-Processing
+## 8.1 Data Pre-Processing
 
-Convert sf data frames to sp's Spatial class
+For this, we will be using the wp_sf_nga dataframe which has all the water points. We will first convert sf data frames to sp's Spatial class
 
 ```{r}
-#wp_spatial <- as_Spatial(wp_sf_nga)
+wp_spatial <- as_Spatial(wp_sf_nga)
 ```
 
 Convert spatial class into generic sp class
 
 ```{r}
-#wp_sp <- as(wp_spatial, "SpatialPoints")
+wp_sp <- as(wp_spatial, "SpatialPoints")
 ```
 
 Converting generic sp format into spatstat's ppp format
 
 ```{r}
-#wp_ppp <- as(wp_sp, "ppp")
-#wp_ppp
+wp_ppp <- as(wp_sp, "ppp")
+wp_ppp
 ```
 
 ```{r}
-#plot(wp_ppp)
+plot(wp_ppp)
+```
+
+For this analysis, we will be working with marked data, and we know that the values are categorical (different water points), we need to ensure that the marked field is of factor data type. However, as seen from the output, our `status_clean` field is of chr data type, not factor! Hence, we will use the *as.factor()* function:
+
+```{r}
+wp_spatial@data$status_clean <-as.factor(wp_spatial@data$status_clean)
+```
+
+We then convert our spatial data datafram intto ppp format and create an owin object.
+
+```{r}
+wp_spatial_marked_ppp <- as(wp_spatial, "ppp")
 ```
 
 ```{r}
-#wp_ppp_km <- rescale(wp_ppp, 1000, "km")
+wp_spatial_marked_ppp = wp_spatial_marked_ppp[NGA_owin]
 ```
+
+```{r}
+plot(wp_spatial_marked_ppp, which.marks = "status_clean")
+```
+
+We use the density() to compute the kernel density objects, and the use plot() to plot it out. Further, we convert the meter to kilometers using rescale()
+
+```{r}
+plot((density(split(rescale(wp_spatial_marked_ppp, 1000)))))
+```
+
+Before we proceed with our second order spatial analysis, we need to assign marks to the ppp objects + check the levels of the marks:
+
+```{r}
+levels(marks(wp_spatial_marked_ppp))
+```
+
+As we can see from the marks, and the above density maps, there are 7 levels here. However, we need them to be only classified into 3 - Functional, Non-Functional and unknown. Hence, we will be using the below code to rename the variable.
+
+```{r}
+levels(marks(wp_spatial_marked_ppp))[levels(marks(wp_spatial_marked_ppp)) == "Abandoned"] <- "Non-Functional"
+```
+
+```{r}
+levels(marks(wp_spatial_marked_ppp))[levels(marks(wp_spatial_marked_ppp)) == "Abandoned/Decommissioned"] <- "Non-Functional"
+```
+
+```{r}
+levels(marks(wp_spatial_marked_ppp))[levels(marks(wp_spatial_marked_ppp)) == "Non-Functional due to dry season"] <- "Non-Functional"
+```
+
+```{r}
+levels(marks(wp_spatial_marked_ppp))[levels(marks(wp_spatial_marked_ppp)) == "Functional but needs repair"] <- "Functional"
+```
+
+```{r}
+levels(marks(wp_spatial_marked_ppp))[levels(marks(wp_spatial_marked_ppp)) == "Functional but not in use"] <- "Functional"
+```
+
+Now, upon running the below code, we can see that all the levels are categorisied into our 3 desired levels.
+
+```{r}
+levels(wp_spatial_marked_ppp[["marks"]])
+```
+
+```{r}
+plot(wp_spatial_marked_ppp, which.marks = "status_clean")
+```
+
+```{r}
+plot(density(split(wp_spatial_marked_ppp)))
+```
+
+From the above density maps, we can observe a relationship between Functional and Non-Functional water points - in the sense that the there seems to be a lot of water Functional water points where ever there are Non-Functional water points. They seem to coexist together quite a lot of times, and hence indicating some level of dependence between them. Hence, to investigate this, we will be using the Cross K-Function.
+
+-   **H0:** The distribution of Functional and Non-Functional water points are spatially independent
+
+-   **H1:** The distribution of Functional and Non-Functional water points are not spatially independent
+
+-   **Confidence Level:** 99%
+
+-   **Significance Level:** 0.01%
+
+The null-hypothesis will be rejected if the p-value is smaller than alpha value of 0.01.
+
+```{r}
+# eval = FALSE
+wp_spatial_marked_ppp_Lcross.csr <- envelope(wp_spatial_marked_ppp, 
+                                 Lcross, 
+                                 i="Functional", 
+                                 j="Non-Functional", 
+                                 correction="border", 
+                                 nsim=999)
+```
+
+```{r}
+plot(wp_spatial_marked_ppp_Lcross.csr, xlab="distance(m)", xlim=c(0,500))
+```
+
+Conclusion : The Functional and Non-Functional water point are not statistically independent as the empirical k-cross line is outside of the envelope of 99% confidence level, and for that we reject the null hypothesis.
 
 # 9.0 References
+
+1.  Professor Kam Tin Seong's [Hands-on Excercises](https://r4gdsa.netlify.app/chap04.html)
+
+2.  [G - Function Point Patter Analysis](https://www.youtube.com/watch?v=npWXTbRNLtM&ab_channel=GeoDaSoftware)
+
+3.  Selection of bandwidth type and adjustment side in kernel density estimation over inhomogeneous backgrounds ([Paper](https://www.tandfonline.com/doi/full/10.1080/13658810902950625))
+
+4.  How IDW works ([Reference](https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-idw-works.htm#:~:text=Inverse%20distance%20weighted%20(IDW)%20interpolation,of%20a%20locationally%20dependent%20variable))
