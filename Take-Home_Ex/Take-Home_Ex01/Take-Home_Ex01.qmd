@@ -615,7 +615,7 @@ plot(kde_wpnonfunctional_adaptive,
 **Comparing Automated and Adapting Bandwidth Methods (side-by-side)**
 
 ::: panel-tabset
-## Functional Water Point
+**Functional Water Point**
 
 ```{r}
 par(mfrow=c(1,2))
@@ -627,7 +627,7 @@ plot(kde_wpfunctional_adaptive,
      ribside=c("right"))
 ```
 
-## Non-Functional Water Point
+**Non-Functional Water Point**
 
 ```{r}
 par(mfrow=c(1,2))
@@ -652,7 +652,7 @@ wp_nonfunctional_ppp_km <- rescale(wp_nonfunctional_ppp, 1000, "km")
 Now we re-plot the graphs
 
 ::: panel-tabset
-## Automated Bandwidth Method
+**Automated Bandwidth Method**
 
 ```{r}
 kde_wpfunctional_km <- density(wp_functional_ppp_km,
@@ -673,7 +673,7 @@ plot(kde_wpnonfunctional_bw,
      ribside=c("right"))
 ```
 
-## Adaptive Bandwidth Method
+**Adaptive Bandwidth Method**
 
 ```{r}
 kde_wpfunctional_adaptive_km <- adaptive.density(wp_functional_ppp_km, method="kernel")
@@ -755,13 +755,13 @@ kde_wpnonfunctional_density_map <- density_map(kde_wpnonfunctional_raster, map_t
 ```
 
 ::: panel-tabset
-## Functional Density Map
+**Functional Density Map**
 
 ```{r}
 kde_wpfunctional_density_map
 ```
 
-## Non-Functional Density Map
+**Non-Functional Density Map**
 
 ```{r}
 kde_wpnonfunctional_density_map
@@ -769,7 +769,7 @@ kde_wpnonfunctional_density_map
 :::
 
 ::: panel-tabset
-## Functional Density Map
+**Functional Density Map**
 
 ```{r}
 tmap_mode('plot')
@@ -778,7 +778,7 @@ tm_shape(kde_wpfunctional_raster) +
   tm_raster("v")
 ```
 
-## Non-Functional Density Map
+**Non-Functional Density Map**
 
 ```{r}
 tmap_mode('plot')
@@ -790,7 +790,7 @@ tm_shape(kde_wpnonfunctional_raster) +
 
 ## 6.4 Kernel Density Maps Analysis
 
-As we can see in the map in [4.3 Data Wrangling for Water Data Point], the number of functional and non-functional water points are quite close, with there being 2319 Functional and 2008 Non-functional water points. As a result, both the density maps are similar. But what is interesting to note is that, there seems to be more concentrated density points for the Non-Functional water points, compared to the Functional water points. Further, from the density maps above, we can see that both the Functional and Non-Functional water points are relatively more concentrated in the center and the upper part of Osun and we don't see that many water points in lower part of Osun. This patter is reflected in the map in \[[5.5 Combining point events object and owin object]\], where we see less concentration of points in the lower part of Osun.
+As we can see in the map in [4.3 Data Wrangling for Water Data Point], the number of functional and non-functional water points are quite close, with there being 2319 Functional and 2008 Non-functional water points. As a result, both the density maps are similar. But what is interesting to note is that, there seems to be more concentrated density points for the Non-Functional water points, compared to the Functional water points. Further, from the density maps above, we can see that both the Functional and Non-Functional water points are relatively more concentrated in the center and the upper part of Osun and we don't see that many water points in lower part of Osun. This patter is reflected in the map in \[\[5.5 Combining point events object and owin object\]\], where we see less concentration of points in the lower part of Osun.
 
 ## 6.5 Advantage of Kernel Density Map over Point Map
 
@@ -818,74 +818,6 @@ With the Kernel Density Map, denser areas with a heavier distribution of Non-Fun
 Further, another advantage of Kernel Density Maps is that it uses the Inverse Distance Weighed method which is estimating cell values by using a linearly weighted combination of a set of sample points ([Reference](https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-idw-works.htm#:~:text=Inverse%20distance%20weighted%20(IDW)%20interpolation,of%20a%20locationally%20dependent%20variable.)). This is quite useful, because it takes into consideration of water points that are further away (from the residential area) and hence, people might have to travel further to access the water points. And this is accounted by the kernel function, and not the Point Map.
 
 Hence to conclude, the Kernal Density provides a quantitative value representing the concentration of points, where as this can only be observed/gauged in Point Map.
-
-## 6.6 Colocation of Functional and Non-Functional Water Points
-
-To find the colocation of functional and non-functional water point, the 'unknown' water points are not required, and hence, we use the `filter()` to remove them.
-
-```{r}
-wp_sf_withoutUnknown <- wp_sf_nga %>%  filter(!status_clean=='unknown')
-```
-
-In the code chunk below, `st_knn()` of sfdep package is used to determine the k (i.e. 6) nearest neighbors for given point geometry. The function `st_kernel_weights()` is used to derive a weights list by using a kernel function. To compute LCLQ, the reference point data must be in either character or vector list. We create two vector lists - one of Functional and for Non-Functional water point and are called A and B respectively. The code `local_colocation()` is used to compute the LCLQ values for each water point. Before we can plot the LCLQ values their p-values, we need to join the output of `local_colocation()` to the stores sf data.frame.
-
-```{r}
-nb <- include_self(
-  st_knn(st_geometry(wp_sf_withoutUnknown),6))
-
-wt <- st_kernel_weights(nb,
-                        wp_sf_withoutUnknown,
-                        "gaussian",
-                        adaptive = TRUE)
-
-A <- wp_functional$status_clean
-
-B <- wp_nonfunctional$status_clean
-
-LCLQ <- local_colocation(A, B, nb, wt, 49)
-
-LCLQ_stores <- cbind(wp_sf_withoutUnknown, LCLQ)
-```
-
-The below map plots the LCLQ analysis
-
-```{r}
-tmap_mode("view")
-tm_shape(NGA) + 
-  tm_polygons() + 
-  tm_shape(LCLQ_stores)+
-    tm_dots(col = "Non.Functional",
-            size = 0.05,
-            border.col = "grey",
-            border.lwd = 0.5) + 
-  tm_view(set.zoom.limits = c(8,11))
-```
-
-```{r}
-tmap_mode("view")
-tm_shape(NGA) + 
-  tm_polygons() + 
-  tm_shape(LCLQ_stores)+
-    tm_dots(col = "Abandoned",
-            size = 0.05,
-            border.col = "grey",
-            border.lwd = 0.5) + 
-  tm_view(set.zoom.limits = c(9,13))
-```
-
-```{r}
-tmap_mode("view")
-tm_shape(NGA) + 
-  tm_polygons() + 
-  tm_shape(LCLQ_stores)+
-    tm_dots(col = "Non.Functional.due.to.dry.season",
-            size = 0.05,
-            border.col = "grey",
-            border.lwd = 0.5) + 
-  tm_view(set.zoom.limits = c(9,11))
-```
-
-The above maps show the colocation of Functional Water Points and Non-Functional Water Points. This means that Non-functional water points in color ('Non-Functional', 'Abandoned', 'Non-functional due to dry season') are surrounded by several Functional water points and hence, are colocated. The above code evaluates each Non-Functional water point individually for colocation with the presence of Functional water points. Hence, if the number of Non-functional water points within the neighborhood of Functional water points are higher than the global proportion of Non-Functional water points, the colocation point will be higher. As we can see from the above maps, there are many Non-functional water points colocated with Functional water points compared to that of 'Abandoned' or 'Non-functional due to dry season'.
 
 # 7.0 Second-order Spatial Point Patterns Analysis
 
@@ -1080,6 +1012,86 @@ plot(wp_spatial_marked_ppp_Lcross.csr, xlab="distance(km)", xlim=c(0,500))
 ```
 
 Conclusion : The Functional and Non-Functional water point are not statistically independent as the empirical k-cross line is outside of the envelope of 99% confidence level, and for that we reject the null hypothesis. This lends weight to what we noticed in our previous maps, where the location of the Functional and Non-Functional water points seem to coincide. And hence, the relation between spatial distribution of Functional and Non-Functional water points is not independent.
+
+## 8.2 Colocation of Functional and Non-Functional Water Points
+
+Additionally, to understand the spatial correlation, we will be finding the colocation of functional and non-functional water point. The 'unknown' water points are not required, and hence, we use the `filter()` to remove them.
+
+```{r}
+wp_sf_withoutUnknown <- wp_sf_nga %>%  filter(!status_clean=='unknown')
+```
+
+In the code chunk below, `st_knn()` of sfdep package is used to determine the k (i.e. 6) nearest neighbors for given point geometry. The function `st_kernel_weights()` is used to derive a weights list by using a kernel function. To compute LCLQ, the reference point data must be in either character or vector list. We create two vector lists - one of Functional and for Non-Functional water point and are called A and B respectively. The code `local_colocation()` is used to compute the LCLQ values for each water point. Before we can plot the LCLQ values their p-values, we need to join the output of `local_colocation()` to the stores sf data.frame.
+
+```{r}
+nb <- include_self(
+  st_knn(st_geometry(wp_sf_withoutUnknown),6))
+
+wt <- st_kernel_weights(nb,
+                        wp_sf_withoutUnknown,
+                        "gaussian",
+                        adaptive = TRUE)
+
+A <- wp_functional$status_clean
+
+B <- wp_nonfunctional$status_clean
+
+LCLQ <- local_colocation(A, B, nb, wt, 49)
+
+LCLQ_stores <- cbind(wp_sf_withoutUnknown, LCLQ)
+```
+
+The below map plots the LCLQ analysis
+
+```{r}
+tmap_mode("view")
+tm_shape(NGA) + 
+  tm_polygons() + 
+  tm_shape(LCLQ_stores)+
+    tm_dots(col = "Non.Functional",
+            size = 0.05,
+            border.col = "grey",
+            border.lwd = 0.5) + 
+  tm_view(set.zoom.limits = c(8,11))
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(NGA) + 
+  tm_polygons() + 
+  tm_shape(LCLQ_stores)+
+    tm_dots(col = "Abandoned",
+            size = 0.05,
+            border.col = "grey",
+            border.lwd = 0.5) + 
+  tm_view(set.zoom.limits = c(9,13))
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(NGA) + 
+  tm_polygons() + 
+  tm_shape(LCLQ_stores)+
+    tm_dots(col = "Non.Functional.due.to.dry.season",
+            size = 0.05,
+            border.col = "grey",
+            border.lwd = 0.5) + 
+  tm_view(set.zoom.limits = c(9,11))
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(NGA) + 
+  tm_polygons() + 
+  tm_shape(LCLQ_stores)+
+    tm_dots(col = "Abandoned.Decommissioned",
+            size = 0.05,
+            border.col = "grey",
+            border.lwd = 0.5) + 
+  tm_view(set.zoom.limits = c(9,11))
+```
+
+The above maps show the colocation of Functional Water Points and Non-Functional Water Points. This means that Non-functional water points in color ('Non-Functional', 'Abandoned', 'Non-functional due to dry season') are surrounded by several Functional water points and hence, are colocated. The above code evaluates each Non-Functional water point individually for colocation with the presence of Functional water points. Hence, if the number of Non-functional water points within the neighborhood of Functional water points are higher than the global proportion of Non-Functional water points, the colocation point will be higher. As we can see from the above maps, there are many Non-functional water points colocated with Functional water points compared to that of 'Abandoned' or 'Non-functional due to dry season'.
 
 # 9.0 References
 

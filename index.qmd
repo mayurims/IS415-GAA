@@ -2,6 +2,6 @@
 title: "IS415-GAA"
 ---
 
-Welcome to <b> IS415 Geospatial Analyticsvs and Applications. </b>
+Welcome to <b> IS415 Geospatial Analytics and Applications. </b>
 
-This is the course website for IS415 I study this term. You will find my course work on this website.
+I am Mayuri Salunke, and this is my Workpage for IS415!

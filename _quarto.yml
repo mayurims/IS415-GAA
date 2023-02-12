@@ -37,7 +37,7 @@ website:
 
 format:
   html:
-    theme: Flatly
+    theme: Lux
     css: styles.css
     toc: true
 
