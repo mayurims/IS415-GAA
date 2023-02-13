@@ -106,7 +106,7 @@ plot(hunan$geometry, border="lightgrey")
 plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "red")
 ```
 
-###  Plotting Rook contiguity based neighbours map
+### Plotting Rook contiguity based neighbours map
 
 ```{r}
 plot(hunan$geometry, border="lightgrey")
