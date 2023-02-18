@@ -82,6 +82,7 @@ tm_shape(hunan_GDPPC) +
 ```
 
 # 
+
 Identifying Area Neighbors
 
 Before a spatial weight matrix can be derived, neighbors need to be identified first
