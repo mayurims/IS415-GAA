@@ -78,7 +78,7 @@ rswm_q <- nb2listw(wm_q,
 rswm_q
 ```
 
-## Global Spatial Autocorrelation: Moran\'s I
+## Global Spatial Autocorrelation: Moran's I
 
 ```{r}
 moran.test(hunan$GDPPC, 
@@ -118,7 +118,7 @@ abline(v=0,
        col="red") 
 ```
 
-## Global Spatial Autocorrelation: Geary\'s
+## Global Spatial Autocorrelation: Geary's
 
 ```{r}
 geary.test(hunan$GDPPC, listw=rswm_q)
@@ -151,7 +151,7 @@ abline(v=1, col="red")
 
 # Spatial Correlogram
 
-## Compute Moran\'s I correlogram
+## Compute Moran's I correlogram
 
 ```{r}
 MI_corr <- sp.correlogram(wm_q, 
@@ -166,7 +166,7 @@ plot(MI_corr)
 print(MI_corr)
 ```
 
-## Compute Geary\'s C correlogram and plot
+## Compute Geary's C correlogram and plot
 
 ```{r}
 GC_corr <- sp.correlogram(wm_q, 

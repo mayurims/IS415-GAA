@@ -1,0 +1,167 @@
+---
+title: "In-Class Excercise 07"
+date: "`r Sys.Date()`"
+format: html
+execute:
+  message: false
+  warning: false
+editor: visual
+---
+
+# Getting Started
+
+```{r}
+pacman::p_load(tmap, sf, sfdep, tidyverse) 
+```
+
+# The Data
+
+## Importing Geospatial Data
+
+```{r}
+hunan <- st_read(dsn = "data/geospatial", 
+                 layer = "Hunan")
+```
+
+## Importing Attribute TableCombining Both Data frame by using Left Join
+
+```{r}
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+
+```{r}
+hunan_GDPPC <- left_join(hunan, hunan2012) %>%
+  select(1:4, 7, 15)
+```
+
+## Plotting a Choropleth Map
+
+```{r}
+tmap_mode("plot")
+tm_shape(hunan_GDPPC) + 
+  tm_fill("GDPPC",
+          style = "quantile",
+          palette = "Blues",
+          title = "GDPPC") + 
+  tm_layout(main.title = "Distribution of GDP per capita by district, Hunan Province",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45,
+            legend.width = 0.35,
+            frame = TRUE) + 
+  tm_borders(alpha = 0.5) + 
+  # tm_text("NAME_3", size=0.5) + 
+  tm_compass(type = "8star", size = 2) + 
+  tm_scale_bar() + 
+  tm_grid(alpha = 0.2)
+```
+
+# Global Measures of Spatial Association
+
+## Contiguity weights: Queen's method
+
+```{r}
+wm_q <- hunan_GDPPC %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb),
+         .before = 1)
+```
+
+## Computing Global Moran'I
+
+```{r}
+moranI <- global_moran(wm_q$GDPPC,
+                       wm_q$nb,
+                       wm_q$wt)
+```
+
+## Performing Global Moran'l test
+
+```{r}
+global_moran_test(wm_q$GDPPC,
+                  wm_q$nb,
+                  wm_q$wt)
+```
+
+```{r}
+set.seed(1234)
+```
+
+The below code runs multiple simulations
+
+```{r}
+global_moran_perm(wm_q$GDPPC,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 99)
+```
+
+# Computing Local Moran's l
+
+```{r}
+lisa <- wm_q %>%
+  mutate(local_moran = local_moran(
+    GDPPC, nb, wt, nsim = 99),
+          .before = 1) %>%
+  unnest(local_moran)
+lisa
+```
+
+```{r}
+tmap_mode("plot")
+tm_shape(lisa) + 
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) + 
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+Use the one which gives more simulation. The below one is not good, as it is only one simulation. Use 'p_ii_sim' or 'p_folded_sim' as it has several simulations
+
+```{r}
+tmap_mode("plot")
+tm_shape(lisa) + 
+  tm_fill("p_ii") + 
+  tm_borders(alpha = 0.5)
+```
+
+# Visualizing Local Moran's l
+
+This is for Take Home Assignment, work on it. You need to have another class called **'Not Significant**'. This is not a good code, you need to work on this!!
+
+```{r}
+lisa_sig <- lisa %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+tm_shape(lisa) + 
+  tm_polygons() + 
+  tm_borders(alpha = 0.5) + 
+tm_shape(lisa_sig) + 
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+```{r}
+HCSA <- wm_q %>%
+  mutate(local_Gi = local_gstar_perm(
+    GDPPC, nb, wt, nsim = 99),
+          .beofre = 1) %>%
+  unnest(local_Gi)
+HCSA
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(HCSA) + 
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) + 
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+```{r}
+tmap_mode("plot")
+tm_shape(HCSA) + 
+  tm_fill("p_sim") + 
+  tm_borders(alpha = 0.5)
+```
+
+# 

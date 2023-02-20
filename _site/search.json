@@ -465,29 +465,29 @@
     "objectID": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#global-spatial-autocorrelation-morans-i",
     "href": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#global-spatial-autocorrelation-morans-i",
     "title": "Hands-on Excercise 07 Part 2: Local Measures of Spatial Autocorrelation",
-    "section": "Global Spatial Autocorrelation: Moran's I",
-    "text": "Global Spatial Autocorrelation: Moran's I\n\nmoran.test(hunan$GDPPC, \n           listw=rswm_q, \n           zero.policy = TRUE, \n           na.action=na.omit)\n\n\n    Moran I test under randomisation\n\ndata:  hunan$GDPPC  \nweights: rswm_q    \n\nMoran I statistic standard deviate = 4.7351, p-value = 1.095e-06\nalternative hypothesis: greater\nsample estimates:\nMoran I statistic       Expectation          Variance \n      0.300749970      -0.011494253       0.004348351 \n\n\n\nset.seed(1234)\nbperm= moran.mc(hunan$GDPPC, \n                listw=rswm_q, \n                nsim=999, \n                zero.policy = TRUE, \n                na.action=na.omit)\nbperm\n\n\n    Monte-Carlo simulation of Moran I\n\ndata:  hunan$GDPPC \nweights: rswm_q  \nnumber of simulations + 1: 1000 \n\nstatistic = 0.30075, observed rank = 1000, p-value = 0.001\nalternative hypothesis: greater\n\n\n\nmean(bperm$res[1:999])\n\n[1] -0.01504572\n\n\n\nvar(bperm$res[1:999])\n\n[1] 0.004371574\n\n\n\nsummary(bperm$res[1:999])\n\n    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. \n-0.18339 -0.06168 -0.02125 -0.01505  0.02611  0.27593 \n\n\n\nhist(bperm$res, \n     freq=TRUE, \n     breaks=20, \n     xlab=\"Simulated Moran's I\")\nabline(v=0, \n       col=\"red\")"
+    "section": "Global Spatial Autocorrelation: Moran’s I",
+    "text": "Global Spatial Autocorrelation: Moran’s I\n\nmoran.test(hunan$GDPPC, \n           listw=rswm_q, \n           zero.policy = TRUE, \n           na.action=na.omit)\n\n\n    Moran I test under randomisation\n\ndata:  hunan$GDPPC  \nweights: rswm_q    \n\nMoran I statistic standard deviate = 4.7351, p-value = 1.095e-06\nalternative hypothesis: greater\nsample estimates:\nMoran I statistic       Expectation          Variance \n      0.300749970      -0.011494253       0.004348351 \n\n\n\nset.seed(1234)\nbperm= moran.mc(hunan$GDPPC, \n                listw=rswm_q, \n                nsim=999, \n                zero.policy = TRUE, \n                na.action=na.omit)\nbperm\n\n\n    Monte-Carlo simulation of Moran I\n\ndata:  hunan$GDPPC \nweights: rswm_q  \nnumber of simulations + 1: 1000 \n\nstatistic = 0.30075, observed rank = 1000, p-value = 0.001\nalternative hypothesis: greater\n\n\n\nmean(bperm$res[1:999])\n\n[1] -0.01504572\n\n\n\nvar(bperm$res[1:999])\n\n[1] 0.004371574\n\n\n\nsummary(bperm$res[1:999])\n\n    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. \n-0.18339 -0.06168 -0.02125 -0.01505  0.02611  0.27593 \n\n\n\nhist(bperm$res, \n     freq=TRUE, \n     breaks=20, \n     xlab=\"Simulated Moran's I\")\nabline(v=0, \n       col=\"red\")"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#global-spatial-autocorrelation-gearys",
     "href": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#global-spatial-autocorrelation-gearys",
     "title": "Hands-on Excercise 07 Part 2: Local Measures of Spatial Autocorrelation",
-    "section": "Global Spatial Autocorrelation: Geary's",
-    "text": "Global Spatial Autocorrelation: Geary's\n\ngeary.test(hunan$GDPPC, listw=rswm_q)\n\n\n    Geary C test under randomisation\n\ndata:  hunan$GDPPC \nweights: rswm_q \n\nGeary C statistic standard deviate = 3.6108, p-value = 0.0001526\nalternative hypothesis: Expectation greater than statistic\nsample estimates:\nGeary C statistic       Expectation          Variance \n        0.6907223         1.0000000         0.0073364 \n\n\n\nset.seed(1234)\nbperm=geary.mc(hunan$GDPPC, \n               listw=rswm_q, \n               nsim=999)\nbperm\n\n\n    Monte-Carlo simulation of Geary C\n\ndata:  hunan$GDPPC \nweights: rswm_q \nnumber of simulations + 1: 1000 \n\nstatistic = 0.69072, observed rank = 1, p-value = 0.001\nalternative hypothesis: greater\n\n\n\nmean(bperm$res[1:999])\n\n[1] 1.004402\n\n\n\nvar(bperm$res[1:999])\n\n[1] 0.007436493\n\n\n\nsummary(bperm$res[1:999])\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n 0.7142  0.9502  1.0052  1.0044  1.0595  1.2722 \n\n\n\nhist(bperm$res, freq=TRUE, breaks=20, xlab=\"Simulated Geary c\")\nabline(v=1, col=\"red\")"
+    "section": "Global Spatial Autocorrelation: Geary’s",
+    "text": "Global Spatial Autocorrelation: Geary’s\n\ngeary.test(hunan$GDPPC, listw=rswm_q)\n\n\n    Geary C test under randomisation\n\ndata:  hunan$GDPPC \nweights: rswm_q \n\nGeary C statistic standard deviate = 3.6108, p-value = 0.0001526\nalternative hypothesis: Expectation greater than statistic\nsample estimates:\nGeary C statistic       Expectation          Variance \n        0.6907223         1.0000000         0.0073364 \n\n\n\nset.seed(1234)\nbperm=geary.mc(hunan$GDPPC, \n               listw=rswm_q, \n               nsim=999)\nbperm\n\n\n    Monte-Carlo simulation of Geary C\n\ndata:  hunan$GDPPC \nweights: rswm_q \nnumber of simulations + 1: 1000 \n\nstatistic = 0.69072, observed rank = 1, p-value = 0.001\nalternative hypothesis: greater\n\n\n\nmean(bperm$res[1:999])\n\n[1] 1.004402\n\n\n\nvar(bperm$res[1:999])\n\n[1] 0.007436493\n\n\n\nsummary(bperm$res[1:999])\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n 0.7142  0.9502  1.0052  1.0044  1.0595  1.2722 \n\n\n\nhist(bperm$res, freq=TRUE, breaks=20, xlab=\"Simulated Geary c\")\nabline(v=1, col=\"red\")"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#compute-morans-i-correlogram",
     "href": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#compute-morans-i-correlogram",
     "title": "Hands-on Excercise 07 Part 2: Local Measures of Spatial Autocorrelation",
-    "section": "Compute Moran's I correlogram",
-    "text": "Compute Moran's I correlogram\n\nMI_corr <- sp.correlogram(wm_q, \n                          hunan$GDPPC, \n                          order=6, \n                          method=\"I\", \n                          style=\"W\")\nplot(MI_corr)\n\n\n\n\n\nprint(MI_corr)\n\nSpatial correlogram for hunan$GDPPC \nmethod: Moran's I\n         estimate expectation   variance standard deviate Pr(I) two sided    \n1 (88)  0.3007500  -0.0114943  0.0043484           4.7351       2.189e-06 ***\n2 (88)  0.2060084  -0.0114943  0.0020962           4.7505       2.029e-06 ***\n3 (88)  0.0668273  -0.0114943  0.0014602           2.0496        0.040400 *  \n4 (88)  0.0299470  -0.0114943  0.0011717           1.2107        0.226015    \n5 (88) -0.1530471  -0.0114943  0.0012440          -4.0134       5.984e-05 ***\n6 (88) -0.1187070  -0.0114943  0.0016791          -2.6164        0.008886 ** \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
+    "section": "Compute Moran’s I correlogram",
+    "text": "Compute Moran’s I correlogram\n\nMI_corr <- sp.correlogram(wm_q, \n                          hunan$GDPPC, \n                          order=6, \n                          method=\"I\", \n                          style=\"W\")\nplot(MI_corr)\n\n\n\n\n\nprint(MI_corr)\n\nSpatial correlogram for hunan$GDPPC \nmethod: Moran's I\n         estimate expectation   variance standard deviate Pr(I) two sided    \n1 (88)  0.3007500  -0.0114943  0.0043484           4.7351       2.189e-06 ***\n2 (88)  0.2060084  -0.0114943  0.0020962           4.7505       2.029e-06 ***\n3 (88)  0.0668273  -0.0114943  0.0014602           2.0496        0.040400 *  \n4 (88)  0.0299470  -0.0114943  0.0011717           1.2107        0.226015    \n5 (88) -0.1530471  -0.0114943  0.0012440          -4.0134       5.984e-05 ***\n6 (88) -0.1187070  -0.0114943  0.0016791          -2.6164        0.008886 ** \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#compute-gearys-c-correlogram-and-plot",
     "href": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#compute-gearys-c-correlogram-and-plot",
     "title": "Hands-on Excercise 07 Part 2: Local Measures of Spatial Autocorrelation",
-    "section": "Compute Geary's C correlogram and plot",
-    "text": "Compute Geary's C correlogram and plot\n\nGC_corr <- sp.correlogram(wm_q, \n                          hunan$GDPPC, \n                          order=6, \n                          method=\"C\", \n                          style=\"W\")\nplot(GC_corr)\n\n\n\n\n\nprint(GC_corr)\n\nSpatial correlogram for hunan$GDPPC \nmethod: Geary's C\n        estimate expectation  variance standard deviate Pr(I) two sided    \n1 (88) 0.6907223   1.0000000 0.0073364          -3.6108       0.0003052 ***\n2 (88) 0.7630197   1.0000000 0.0049126          -3.3811       0.0007220 ***\n3 (88) 0.9397299   1.0000000 0.0049005          -0.8610       0.3892612    \n4 (88) 1.0098462   1.0000000 0.0039631           0.1564       0.8757128    \n5 (88) 1.2008204   1.0000000 0.0035568           3.3673       0.0007592 ***\n6 (88) 1.0773386   1.0000000 0.0058042           1.0151       0.3100407    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
+    "section": "Compute Geary’s C correlogram and plot",
+    "text": "Compute Geary’s C correlogram and plot\n\nGC_corr <- sp.correlogram(wm_q, \n                          hunan$GDPPC, \n                          order=6, \n                          method=\"C\", \n                          style=\"W\")\nplot(GC_corr)\n\n\n\n\n\nprint(GC_corr)\n\nSpatial correlogram for hunan$GDPPC \nmethod: Geary's C\n        estimate expectation  variance standard deviate Pr(I) two sided    \n1 (88) 0.6907223   1.0000000 0.0073364          -3.6108       0.0003052 ***\n2 (88) 0.7630197   1.0000000 0.0049126          -3.3811       0.0007220 ***\n3 (88) 0.9397299   1.0000000 0.0049005          -0.8610       0.3892612    \n4 (88) 1.0098462   1.0000000 0.0039631           0.1564       0.8757128    \n5 (88) 1.2008204   1.0000000 0.0035568           3.3673       0.0007592 ***\n6 (88) 1.0773386   1.0000000 0.0058042           1.0151       0.3100407    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex07(2)/Hands-on_Ex07(2).html#plotting-moran-scatterplot",
@@ -537,5 +537,54 @@
     "title": "Hands-on Excercise 07 Part 2: Local Measures of Spatial Autocorrelation",
     "section": "Mapping Gi values with adaptive distance weights",
     "text": "Mapping Gi values with adaptive distance weights\n\ngdppc<- qtm(hunan, \"GDPPC\")\n\nGimap <- tm_shape(hunan.gi) + \n  tm_fill(col = \"gstat_adaptive\", \n          style = \"pretty\", \n          palette=\"-RdBu\", \n          title = \"local Gi\") + \n  tm_borders(alpha = 0.5)\n\ntmap_arrange(gdppc, \n             Gimap, \n             asp=1, \n             ncol=2)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html",
+    "href": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html",
+    "title": "In-Class Excercise 07",
+    "section": "",
+    "text": "pacman::p_load(tmap, sf, sfdep, tidyverse)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#importing-geospatial-data",
+    "href": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#importing-geospatial-data",
+    "title": "In-Class Excercise 07",
+    "section": "Importing Geospatial Data",
+    "text": "Importing Geospatial Data\n\nhunan <- st_read(dsn = \"data/geospatial\", \n                 layer = \"Hunan\")\n\nReading layer `Hunan' from data source \n  `C:\\mayurims\\IS415-GAA\\In-Class_Ex\\In-Class_Ex07\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#importing-attribute-tablecombining-both-data-frame-by-using-left-join",
+    "href": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#importing-attribute-tablecombining-both-data-frame-by-using-left-join",
+    "title": "In-Class Excercise 07",
+    "section": "Importing Attribute TableCombining Both Data frame by using Left Join",
+    "text": "Importing Attribute TableCombining Both Data frame by using Left Join\n\nhunan2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")\n\n\nhunan_GDPPC <- left_join(hunan, hunan2012) %>%\n  select(1:4, 7, 15)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#plotting-a-choropleth-map",
+    "href": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#plotting-a-choropleth-map",
+    "title": "In-Class Excercise 07",
+    "section": "Plotting a Choropleth Map",
+    "text": "Plotting a Choropleth Map\n\ntmap_mode(\"plot\")\ntm_shape(hunan_GDPPC) + \n  tm_fill(\"GDPPC\",\n          style = \"quantile\",\n          palette = \"Blues\",\n          title = \"GDPPC\") + \n  tm_layout(main.title = \"Distribution of GDP per capita by district, Hunan Province\",\n            main.title.position = \"center\",\n            main.title.size = 1.2,\n            legend.height = 0.45,\n            legend.width = 0.35,\n            frame = TRUE) + \n  tm_borders(alpha = 0.5) + \n  # tm_text(\"NAME_3\", size=0.5) + \n  tm_compass(type = \"8star\", size = 2) + \n  tm_scale_bar() + \n  tm_grid(alpha = 0.2)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#contiguity-weights-queens-method",
+    "href": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#contiguity-weights-queens-method",
+    "title": "In-Class Excercise 07",
+    "section": "Contiguity weights: Queen’s method",
+    "text": "Contiguity weights: Queen’s method\n\nwm_q <- hunan_GDPPC %>%\n  mutate(nb = st_contiguity(geometry),\n         wt = st_weights(nb),\n         .before = 1)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#computing-global-morani",
+    "href": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#computing-global-morani",
+    "title": "In-Class Excercise 07",
+    "section": "Computing Global Moran’I",
+    "text": "Computing Global Moran’I\n\nmoranI <- global_moran(wm_q$GDPPC,\n                       wm_q$nb,\n                       wm_q$wt)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#performing-global-moranl-test",
+    "href": "In-Class_Ex/In-Class_Ex07/In-Class_Ex07.html#performing-global-moranl-test",
+    "title": "In-Class Excercise 07",
+    "section": "Performing Global Moran’l test",
+    "text": "Performing Global Moran’l test\n\nglobal_moran_test(wm_q$GDPPC,\n                  wm_q$nb,\n                  wm_q$wt)\n\n\n    Moran I test under randomisation\n\ndata:  x  \nweights: listw    \n\nMoran I statistic standard deviate = 4.7351, p-value = 1.095e-06\nalternative hypothesis: greater\nsample estimates:\nMoran I statistic       Expectation          Variance \n      0.300749970      -0.011494253       0.004348351 \n\n\n\nset.seed(1234)\n\nThe below code runs multiple simulations\n\nglobal_moran_perm(wm_q$GDPPC,\n                  wm_q$nb,\n                  wm_q$wt,\n                  nsim = 99)\n\n\n    Monte-Carlo simulation of Moran I\n\ndata:  x \nweights: listw  \nnumber of simulations + 1: 100 \n\nstatistic = 0.30075, observed rank = 100, p-value < 2.2e-16\nalternative hypothesis: two.sided"
   }
 ]
