@@ -206,8 +206,6 @@ tm_shape(jakarta) +
 
 ### 3.2.4 Retaining first 9 fields of `jakarta`
 
-**WHYY THOUGHHH??? I DONT GETTT ITTT**
-
 Additionally, the assignment only requires us to retain the relevant fields - which are the first 9 fields.
 
 ```{r}
@@ -218,17 +216,14 @@ jakarta <- jakarta[, 0:9]
 
 Since the columns names are in Indonesian, lets rename them to English for better ease of use.
 
-**HOW DOO YOU FIND THE LEVELSSSS????????? DRAW DIAGRAM!**
-
 ```{r}
 jakarta <- jakarta %>% 
   
   dplyr::rename(
-    
     Object_ID=OBJECT_ID,
     Village_Code=KODE_DESA, 
-    Village=DESA,
     Code=KODE,
+    Village=DESA,
     Province=PROVINSI, 
     City=KAB_KOTA, 
     District=KECAMATAN, 
@@ -762,129 +757,21 @@ tmap_arrange(jenks_plot(vaccination_rate, "2021-07-31"),
 
 ## 7.1.2 Observations from Jenks Choropleth maps
 
-The Vaccination Rate values (scale) are different for each month, hence it is hard for us to compare each month based on the ranging colour. But we do see that the vaccination rates increase over the months, with the minimum vaccination rate increasing every month.
-
-However, we can notice the following things for sub-districts regarding high vacciniation rate :
+We can notice the following things for sub-districts regarding high vaccination rate (sub-district in darker colour) :
 
 -   The highest vaccination rate from the periods of 31/07/2021 to 31/08/2021 seems to be more concentrated towards the North of Jakarta.
 
--   From the period of 30/09/2021 to 31/10/2021, the high vaccination rates seems to be more spread out throughout Jakarta
+-   From the period of 30/09/2021 to 30/11/2021, the high vaccination rates are more spread out throughout Jakarta
 
--   The high vaccination rates seem to be more concentrated towards the South and South-East of Jakarta from the period of 30/11/2021.
+-   The high vaccination rates seem to be more concentrated towards the South and East of Jakarta from the period of 31/12/2021.
 
-We can notice the following things for sub-districts regarding low vaccination rate :
+We can notice the following things for sub-districts regarding low vaccination rate (sub-district in lighter colour) :
 
--   The map of 31/08/2021 shows more sub-districts with a lighter colour (indicating) more sub-districts had a low vaccination rate
+-   The map of 31/08/2021 shows more sub-districts with a lighter colour (indicating) low vaccination rate
 
--   However, it looks like most of the sub-districts caught up the following month (30/09/2021) with a more uniform colour (i.e. fewer sub-districts with light colours)
+-   However, it looks like most of the sub-district caught up the following month (30/09/2021) with a more uniform colour (i.e. fewer sub-districts with light colours)
 
--   From the period 31/01/2022, there were more sub-districts with lower vaccination rate (lighter colour). Especially the majority of sub-districts in the North and West seems to have a low vaccination rate in comparison to others. This is most apparent in 30/06/2022 where most sub-districts in the North and West have a lower vaccination rate (except for a few sub-districts in the North with a relatively higher vaccination rate). Further, some of the sub-districts in the Central seem to have the lowest vaccination rate consistently from as seen from the maps from 27/02/2022 onwards.
-
-Lets check for the sub-districts with the highest cases rate at the various stages -
-
-```{r}
-#highest vaccination rate for each month
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2021-07-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2021-08-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2021-09-30`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2021-10-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2021-11-30`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2021-12-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2022-01-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2022-02-27`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2022-03-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2022-04-30`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2022-05-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.max(vaccination_rate$`2022-06-30`)]
-```
-
-As we can see, the first 2 months (July 2022 to August 2021), the sub-district with the highest vaccination rate is Kamal Maura, which is located in North Jakarta. However, following that, the highest vaccination rate is continuously in Halim Perdana Kusumah, which is in East Jakarta. Thus verifying our observations mentioned above.
-
-Now lets check the sub-districts with the lowest vaccination rate
-
-```{r}
-#lowest vaccination rate for each month
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2021-07-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2021-08-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2021-09-30`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2021-10-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2021-11-30`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2021-12-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2022-01-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2022-02-27`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2022-03-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2022-04-30`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2022-05-31`)]
-```
-
-```{r}
-vaccination_rate$Sub_District[which.min(vaccination_rate$`2022-06-30`)]
-```
-
-The first month in our anlaysis has Bale Kambang has the sub-district with the lowest vaccination rate which is in the East district. However, in the next month (31/08/2021), it is Petamburan (Center District) with the lowest vaccination rate. It is then followed by Kali Baru in the North District from 30/09/2021 to 31/01/2022 with an exception of 31/12/2021. However, from the map of 27/02/2022 onward, Kebon Melati (in the Central District) has the lowest vaccination rates. This verifies what we analysed previously from viewing the thematic maps.
+-   From the period 31/01/2022, there were more sub-districts with lower vaccination rate (lighter colour). Especially sub-districts in the North and West (except for a few sub-districts in the North with a relatively higher vaccination rate). Further, some of the sub-districts in the Central seem to have the lowest vaccination rate consistently from as seen from the maps from 27/02/2022 onward.
 
 ## **7.2.1 Spatio-Temporal Mapping With Custom Breakpoints**
 
@@ -900,9 +787,11 @@ max(vaccination_rate$`2022-06-30`)
 min(vaccination_rate$`2021-07-31`)
 ```
 
-Our range for the breakpoints is 37 to 90. Hence, our breakpoints will be
+```{r}
+summary(vaccination_rate)
+```
 
-**HOW DO U FIND THE BREAKPOINTSS????**
+Our range for the breakpoints is 37 to 90. After experimenting with the breakpoints, I have chosen the following breakpoints as they provide a proper categorization such that we can differentiate sub-districts with lower vaccination rate from those with higher vaccination rate (i.e. not making majority of sub-districts) in the same colour.
 
 ```{r}
 breakpoints = c(37, 55, 72, 80, 84, 90)
@@ -973,6 +862,12 @@ I will be conducting a Local Gi\* Analysis, also known as Local Spatial Autocorr
 -   Gi∗\>0 : indicates sub-districts with higher vaccination rate than average
 
 -   Gi∗\<0 : indicates sub-districts with higher vaccination rate than average
+
+For significant (p_value\<0.05) Gi\* statistic values, two spatial associations can be inferred :
+
+-   **Hot spot areas**: where Gi∗>0, indicating that a location is associated with relatively high values in the surrounding locations.
+
+-   **Cold spot areas**: where Gi∗<0, indicating that a location is associated with relatively low values in the surrounding locations.
 
 ## **8.1 Computing Local Gi\* Values of Monthly Vaccination Rate**
 
@@ -1047,7 +942,7 @@ As a result, this dataset has neighbors and weights for each time-slice
 head(vacc_rate_nb)
 ```
 
-We now, use `set.seed()` before performing simulation to ensure that the computation is reproducible. When a random number generator is used, the results can be different each time the code is run, which makes it difficult to reproduce results. By setting the seed to a specific value (e.g., **`set.seed(1234)`**), the same random numbers will be generated each time the code is run, making the results reproducible and consistent.
+We will use `set.seed()` before performing simulation to ensure that the computation is reproducible. When a random number generator is used, the results can be different each time the code is run, which makes it difficult to reproduce results. By setting the seed to a specific value (e.g., **`set.seed(1234)`**), the same random numbers will be generated each time the code is run, making the results reproducible and consistent.
 
 ```{r}
 set.seed(1234)
@@ -1099,7 +994,7 @@ gi_value_plot <- function(date, title) {
     tm_layout(main.title = paste("Gi* values for vaccination rates in", title), main.title.size=0.8)
 
   p_value_map = tm_shape(filter(jakarta_gi_values, Date == date)) +
-    tm_fill("p_value",
+    tm_fill("p_sim",
           breaks = c(0, 0.001, 0.01, 0.05, 1),
               labels = c("0.001", "0.01", "0.05", "Not sig")) +
     tm_borders(alpha=0.5) + 
@@ -1110,7 +1005,6 @@ gi_value_plot <- function(date, title) {
 ```
 
 ```{r}
-tmap_mode("plot")
 gi_value_plot("2021-07-31", "July 2021")
 ```
 
@@ -1160,18 +1054,71 @@ gi_value_plot("2022-06-30", "June 2022")
 
 ## **8.3 Analyzing the Results**
 
-We have plotted p-value less than 0.05. As the p-value represents the probability of observing a clustering. Hence, a significant p-value (i.e., \<0.05) suggests that the observed pattern is unlikely to have occurred by chance and may indicate the presence of a spatial process. Hence, the vaccination rate of the sub-district at that period is significant. Further, when Gi\* value \> 0, it indicates sub-districts with a higher vaccination rate than average. Which can be seen through our maps. Now lets see the number of times each sub-district had a p-value less than 0.05
+The p-value represents the probability of observing a clustering. Sub-districts with significant p-value (i.e., p_value\<0.05) suggests that the observed pattern is unlikely to have occurred by chance and may indicate the presence of a spatial process. Hence, the vaccination rate of the sub-district at that
+period is significant. From the maps plotted, we see that there is in increase in number of sub-districts (with p_values\<0.05) in the southern and eastern sub-district.
+
+Now, lets find the hot and cold spots. The above code filters our sub-districts with p-value\<0.05. Hence, we can find which sub-districts are hot or cold spots, depending on their g-value.
 
 ```{r}
-p_value_freq = filter(jakarta_gi_values, p_sim<0.05)
-as.data.frame(table(p_value_freq$Sub_District))
+significant <- function(date, title){
+ significant_gi = tm_shape(filter(jakarta_gi_values, Date == date)) +
+    tm_polygons() +
+    tm_shape(filter(jakarta_gi_values, Date == date) %>% filter(p_sim <0.05)) +
+    tm_fill("gi_star",
+            style="equal",
+            n=5) +
+    tm_borders(alpha = 0.5) +
+    tm_layout(main.title = paste("Siginificant Gi* values in ", title), main.title.size=0.8)
+  return(significant_gi)
+}
 ```
 
-As we can see there are 128 sub-districts who have a significant vaccination rate (p-value \< 0.05) atleast once during the period of 12 months. However, the following 12 sub-districts -- "BATU AMPAR", "CIPINANG CEMPEDAK", "GLODOK", "KAMPUNG BALI", "KAMPUNG TENGAH", "KEAGUNGAN", "KEBON KACANG", "KEBON MELATI", "MANGGA BESAR", "PETAMBURAN" have a significant p-value throughout the course of 12 months.
+```{r}
+tmap_arrange(
+  significant("2021-07-31", "July 2021"),
+  significant("2021-08-31", "August 2021"),
+  significant("2021-09-30", "September 2021"),
+  significant("2021-10-31", "October 2021")
+)
+```
+
+```{r}
+tmap_arrange(
+  significant("2021-11-30", "November 2021"),
+  significant("2021-12-31", "December 2021"),
+  significant("2022-01-31", "January 2022"),
+  significant("2022-02-27", "February 2022")
+)
+```
+
+```{r}
+tmap_arrange(
+  significant("2022-03-31", "March 2022"),
+  significant("2022-04-30", "April 2022"),
+  significant("2022-05-31", "May 2022"),
+  significant("2022-06-30", "June 2022")
+  )
+```
+
+Sub-districts with gi_star \> 0 are hot spot areas, where those \< 0 are cold spot areas. Hot spot areas are areas with clustering of high concentration of vaccination rate. Where as cold spot areas are sub-districts with low concentration. In the above maps, sub-districts in the shade of green are hot spot areas and those in the shades of red are cold-spot areas.
+
+In the beginning, there were more hot-spot areas in the North Jakarta, however, we see a change where most of the hotspots are now concentrated in the South Jakarta. This could be due to higher percentage of ageing population in South Jakarta or an increase in availability and accessibility of vaccine sites in South Jakarta. For the cold spots, some sub-districts in the Center seem to be a cold-spot. This suggests that there is a continuous shortage of vaccine or that the residents are unwilling to take the vaccine.
 
 # 9.0 Emerging Hot Spot Anlaysis (EHSA)
 
-Emerging Hot Spot Analysis (EHSA) is a spatio-temporal analysis method for revealing and describing how hot spot and cold spot areas evolve over time. Since, we have already built a space-time cube and calculate the Gi\* statistict, we can directly conduct the Mann-Kendall trend test to evaluate 3 sub-districts for a trend. For this analysis, I will be choosing HALIM PERDANA KUSUMAH, KOTA BAMBU SELATAN and KAMAL.
+Emerging Hot Spot Analysis (EHSA) is a spatio-temporal analysis method for revealing and describing how hot spot and cold spot areas evolve over time. Since, we have already built a space-time cube and calculate the Gi\* statistict, we can directly conduct the Mann-Kendall trend test to evaluate 3 sub-districts for a trend. The Mann-Kendall test is a non-parametric statistical method used to analyze trends in time series data. For this analysis, I will be choosing HALIM PERDANA KUSUMAH, KOTA BAMBU SELATAN and KAMAL.
+
+Here are the hypothesis for Mann-Kendall Test --
+
+-   H~0~: There is no trend in the data, meaning that the data points are independent and identically distributed
+
+-   H~1~: There is a trend (positive or negative)
+
+We will be observing 2 values -
+
+-   tau - It is a measure of strength and direction a monotonic trend between two variables. It ranges from +1 to -1, where a value of 1 indicates a perfect increasing monotonic trend, a value of -1 indicates a perfect decreasing monotonic trend, and a value of 0 indicates no monotonic trend.
+
+-   sl - This stands for significance level
 
 ## 9.1 Mann-Kendall Trend Test
 
@@ -1214,7 +1161,7 @@ halim_pk %>%
   tidyr::unnest_wider(mk)
 ```
 
-***The p-value is 0.086 which is \> 0.05 hence p-value is not significant. This result tells us that here is an overall upward but insignificant trend.***
+The p-value is 0.086 which is \> 0.05 hence p-value is not significant. This result tells us that there is no trend and the data points are independent and identically distributed.
 
 ### 9.1.2 Sub-District -- Bale Kambang
 
@@ -1245,7 +1192,7 @@ bale_k %>%
   tidyr::unnest_wider(mk)
 ```
 
-***The p-value is 0.01 which is \< 0.05 hence p-value is significant. This result tells us that here is an overall upward and a significant trend.***
+The tau value is greater than 0 indicating a monotonic increasing trend. Further, p-value is 0.01 which is \< 0.05 hence p-value is significant. This result tells us that here is an overall upward (positive) trend. This means that as time passes, the Gi\* value will increase, thus a higher clustering of high vaccination rate. That is more people will be getting their vaccine.
 
 ### 9.1.3 Sub-District -- Kamal
 
@@ -1276,7 +1223,7 @@ kamal %>%
   tidyr::unnest_wider(mk)
 ```
 
-***The p-value is 0.0001 which is \< 0.05 hence p-value is significant. This result tells us that here is an overall downward and significant trend.***
+The tau value (-0.84) is negative, indicating a strong monotonic decreasing trend. The p-value is 0.0001 which is \< 0.05 hence p-value is significant. This result tells us that here is an overall negative trend. As time passes by, the Gi\* value will decrease, thus a higher clustering of low vaccination rate. This could either be due to shortage of vaccines or the residents of Kamal are increasingly becoming resistant towards taking vaccine. This is not good, and the issue must be addressed immediately in this pandemic era.
 
 ## 9.2 EHSA map of the Gi\* values of the vaccination rate
 
@@ -1343,8 +1290,23 @@ tm_shape(jakarta_ehsa_sig) +
   tm_borders(alpha = 0.4)
 ```
 
-The maps shows the largest number of oscillating hotspots which are located evenly in Jakarta. This is followed by Spordiac coldspot, which is spread out in Jakarta but less than oscillating hotspots, as we don't see that many spordiac coldspots near the borders of Jakarta. This is lastly followed by Oscilating coldspot which appear to be more around the border and in the central of Jakarta. Lastly, there are areas with no pattern detected, these are mainly located in the central area. Further, the sub-districts with p-value \> 0.05 are in grey colour, as they are insignificant.
+Below are the meanings of the terms -
 
-# 10.0 References
+-   Oscilating hotspot - It refers to a spatial pattern where a location or area alternates between being a hot spot (i.e., having a statistically significant high value) and a cold spot (i.e., having a statistically significant low value) over time. These hot-spots have an increasing trend in intensity over time.
 
-Thank your Prof. Kim for all the resources and insightful Hands-On and Take-Home Excercises. Special thanks go to the Senior Sample Submissions that Prof. Kam recommended!
+-   Oscilating coldspot - It refers to areas that consistently experience lower values or intensity than surrounding areas, but the intensity levels in these areas fluctuate over time. They have a decreasing trend over time.
+
+-   Sporadic coldspot - Sub-disticts which exhibits unusually low values for vaccination rate, as compared to its surrounding areas.
+
+-   No pattern detected - Sub-districts that do not fall into any hot or cold spot patterns
+
+The maps shows the largest number of oscillating hotspots which are located evenly in Jakarta. This means that there is a fluctuation between people getting vaccine with people not being able to get vaccine. This could be due to shortage of vaccines sometimes. This is followed by Spordiac coldspot
+(lesser than oscillating hotspots), which is quite spread out in Jakarta. These have extremely low vaccination rate and hence, needs to be looked at immediately. This is lastly followed by Oscilating coldspot which appear to be more around the border and in the central of Jakarta. Lastly, there are areas with no pattern detected, these are mainly located in the central area. Further, the sub-districts with p-value \> 0.05 are in grey colour as they are insignificant.
+
+# 10.0 Conclusion
+
+The analysis of Jakarta's sub-districts vaccination rate is important as it provides valuable insights into the spatial patterns of vaccination coverage in different areas. By using the above techniques, we can identify areas where vaccination rates are low and where more vaccination campaigns are required. It also helps to identify areas where vaccination campaigns have been successful. We have identified hotspots or coldspots where targeted interventions may be required to improve the coverage of the vaccine. This can help policymakers make informed decisions about where to allocate resources and where to focus vaccination campaigns. It can also help in identifying the areas where vaccine hesitancy or lack of access to healthcare services may be contributing to low vaccination rates. Overall, the analysis of vaccination rates in Jakarta's sub-districts is crucial for effective planning and implementation of vaccination programs, and for achieving higher vaccination coverage rates.
+
+# 11.0 References
+
+Thank your Prof. Kim for all the resources and insightful Hands-On and Take-Home Excercises. Special thanks goes to the Senior Sample Submissions that Prof. Kam recommended!
