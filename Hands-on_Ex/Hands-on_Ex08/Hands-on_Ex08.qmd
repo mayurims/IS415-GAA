@@ -129,10 +129,10 @@ PROX_TOP_PRIMARY_SCH <- ggplot(data=condo_resale.sf,
                                aes(x= `PROX_TOP_PRIMARY_SCH`)) +
   geom_histogram(bins=20, color="black", fill="light blue")
 
-#ggarrange(AREA_SQM, AGE, PROX_CBD, PROX_CHILDCARE, PROX_ELDERLYCARE, 
- #         PROX_URA_GROWTH_AREA, PROX_HAWKER_MARKET, PROX_KINDERGARTEN, PROX_MRT,
-  #        PROX_PARK, PROX_PRIMARY_SCH, PROX_TOP_PRIMARY_SCH,  
-   #       ncol = 3, nrow = 4)
+ggarrange(AREA_SQM, AGE, PROX_CBD, PROX_CHILDCARE, PROX_ELDERLYCARE, 
+          PROX_URA_GROWTH_AREA, PROX_HAWKER_MARKET, PROX_KINDERGARTEN, PROX_MRT,
+          PROX_PARK, PROX_PRIMARY_SCH, PROX_TOP_PRIMARY_SCH,  
+          ncol = 3, nrow = 4)
 ```
 
 ## Drawing Statistical Point Map
@@ -142,13 +142,14 @@ tmap_mode("view")
 ```
 
 ```{r}
-#tm_shape(mpsz_svy21)+
-  #tm_polygons() +
-#tm_shape(condo_resale.sf) +  
-  #tm_dots(col = "SELLING_PRICE",
-   #       alpha = 0.6,
-    #      style="quantile") +
-  #tm_view(set.zoom.limits = c(11,14))
+tm_shape(mpsz_svy21)+
+  tm_polygons() +
+tm_shape(condo_resale.sf) +  
+  tm_dots(col = "SELLING_PRICE",
+          alpha = 0.6,
+          style="quantile") +
+  tm_view(set.zoom.limits = c(11,14)) + 
+  tmap_options(check.and.fix = TRUE)
 ```
 
 ```{r}
@@ -209,17 +210,17 @@ ols_regress(condo.mlr1)
 ## Preparing Publication Quality Table: gtsummary method
 
 ```{r}
-#tbl_regression(condo.mlr1, intercept = TRUE)
+tbl_regression(condo.mlr1, intercept = TRUE)
 ```
 
 ```{r}
-#tbl_regression(condo.mlr1, 
- #              intercept = TRUE) %>% 
-  #add_glance_source_note(
-   # label = list(sigma ~ "\U03C3"),
-    #include = c(r.squared, adj.r.squared, 
-     #           AIC, statistic,
-      #          p.value, sigma))
+tbl_regression(condo.mlr1, 
+               intercept = TRUE) %>% 
+  add_glance_source_note(
+    label = list(sigma ~ "\U03C3"),
+    include = c(r.squared, adj.r.squared, 
+                AIC, statistic,
+                p.value, sigma))
 ```
 
 ```{r}
