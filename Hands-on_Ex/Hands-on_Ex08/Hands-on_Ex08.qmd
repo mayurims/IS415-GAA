@@ -1,5 +1,5 @@
 ---
-title: "Hands-On Excercise 09 : Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method"
+title: "Hands-On Excercise 08 : Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method"
 date: "`r Sys.Date()`"
 format: html
 execute:
