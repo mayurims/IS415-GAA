@@ -195,3 +195,6 @@ gwRF_pred <- predict.grf(gwRF_adaptive,
                          global.w = 0)
 ```
 
+
+Converting the predicting output into a data frame
+

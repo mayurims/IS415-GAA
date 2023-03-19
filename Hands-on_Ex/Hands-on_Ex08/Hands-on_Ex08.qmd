@@ -11,7 +11,7 @@ editor: visual
 # Downloading Packages
 
 ```{r}
-pacman::p_load(olsrr, corrplot, ggpubr, sf, spdep, GWmodel, tmap, tidyverse, gtsummary, readr, dplyr, ggpubr)
+pacman::p_load(olsrr, ggpubr, sf, spdep, corrplot, GWmodel, tmap, tidyverse, gtsummary, readr, dplyr, ggpubr)
 ```
 
 # Getting Data into R Environment
