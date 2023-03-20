@@ -3,6 +3,7 @@ title: "In-Class Excercise 09"
 date: "`r Sys.Date()`"
 format: html
 execute:
+  eval: false
   message: false
   warning: false
 editor: visual
