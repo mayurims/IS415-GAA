@@ -1725,9 +1725,10 @@ ggplot(data = test_data_p,
 
 # 10.0 Comparing OLS and GWR Method
 
-**WHAT DO I DOO????? I AM SO CLUELESSSS!!!!**
-
 OLS assumes that the relationship between dependent and independent variable is constant throughout the area, whereas, GWR allows for the relationship between the variables to vary across the space. Further, OLS assumes that the residuals are independent and indetically distributed (IID). However, spatial data often violates the IID assumption because neighbouring observations are often correlated. This is where GWR comes in as it is specifically designed to account for spatial diependence by considering the local neighbourhood around each observation.
+
+Lets look at RMSE. RMSE (Root Mean Squared Error) is a commonly used metric for evaluating the performance of predictive models. It measures the average distance between the predicted values and the actual value. A lower RMSE indicates better performance of the predictive model, as it means the model's predictions are closer to the actual values. For the OLS method is 62652.76 whereas for GWR method, the RMSE method is 36299.81, which is almost half of the rmse of the OLS method. This is one of the reason indicating GWR method is a better predictive method than OLS method.
+Further, when we look at [8.6 Visualising the Predicted Values] and [9.8 Visualising the Predicted Values], we can see how the relation between the actual resale price and fit for OLS method is not linear. The points are more distributed as the fit increases, suggesting decrease in correctly predicted values. Whereas, the relation between resale price and the predicted resale value has a linear relation, indicating a more accurate prediction of resale price. This once again displays why GWR is a better predictive method than OLS.
 
 # Acknowledgement
 
