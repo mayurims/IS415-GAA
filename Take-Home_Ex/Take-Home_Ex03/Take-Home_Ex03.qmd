@@ -25,48 +25,46 @@ In this take-home exercise, we are tasked to predict HDB resale prices at the su
 
 ## 1.3 Packages Used
 
--   sf :
+-   sf : For importing, managing and processing geospatial data
 
--   tidyverse :
+-   tidyverse : For performing data science tasks such as importing, wrangling and visualising data
 
--   tmap :
+-   tmap : For plotting cartographic quality static point patterns maps or interactive maps by using leaflet API
 
--   spdep :
+-   spdep : Compute GSA (Global Spatial Autocorrelation) statistics
 
--   onemapsapi :
+-   onemapsapi : For accessing OneMap API
 
--   httr :
+-   httr : For interacting with web APIs and handling HTTP requests and responses
 
--   ggmap :
+-   ggmap : For integrating maps from various web mapping services
 
--   rvest : for html_text()
+-   rvest : For html_text()
 
--   units : ???
+-   gtsummary : For tbl_regression()
 
--   matrixStats : ???
+-   SpatialML : For Geographical Random Forest Model
 
--   jsonlite : ??
+-   jsonlite : For working with JSON
 
--   olsrr : ??
+-   olsrr : Used for performing OLS regression
 
--   coorplot : ??
+-   Metrics: To calculate rmse
 
--   GWmodel :
+-   coorplot : For multivariate data visualisation and analysis
 
--   devtools :
+-   GWmodel : For calibrating geographical weighted family of models
 
--   kableExtra :
+-   devtools : For installing packages not available in CRAN
 
--   plotly :
-
--   ggthemes :
+-   kableExtra : For visualisation of data in Table
 
 ```{r}
 # initialise a list of required packages
 packages = c('sf', 'tidyverse', 'tmap', 'spdep', 'httr', 'ggmap', "rvest",
              'onemapsgapi', 'units', 'matrixStats', 'readxl', 'jsonlite',
-             'olsrr', 'corrplot', 'ggpubr', 'GWmodel',
-             'devtools', 'kableExtra', 'plotly', 'ggthemes')
+             'olsrr', 'corrplot', 'ggpubr', 'GWmodel', 'Metrics',
+             'devtools', 'kableExtra', 'plotly', 'ggthemes', "gtsummary", "SpatialML", "readr")
 
 # for each package, check if installed and if not, install it
 for (p in packages){
@@ -117,7 +115,6 @@ datasets <- data.frame(
          "Hawker Centres",
          "Gyms",
          "General Information of Schools",
-         "Parks",
          "MRT Locations",
          
          "Kindergartens",
@@ -126,6 +123,7 @@ datasets <- data.frame(
          "Supermarkets",
          "Childcare Services",
          "Dengue Clusters",
+         "National Parks",
          
          "Bus Stop Locations",
          "Shopping Malls"),
@@ -136,12 +134,12 @@ datasets <- data.frame(
            ".geojson", 
            ".geojson",
            ".csv",
-           ".kml",
            ".geojson",
            
            ".shp", 
            ".shp", 
            ".shp", 
+           ".shp",
            ".shp",
            
            ".shp",
@@ -157,8 +155,8 @@ datasets <- data.frame(
            "[data.gov.sg](https://data.gov.sg/dataset/)",
            "[data.gov.sg](https://data.gov.sg/dataset/)",
            "[data.gov.sg](https://data.gov.sg/dataset/)",
-           "[data.gov.sg](https://data.gov.sg/dataset/)",
            
+           "[OneMap API](https://www.onemap.gov.sg/docs/)",
            "[OneMap API](https://www.onemap.gov.sg/docs/)",
            "[OneMap API](https://www.onemap.gov.sg/docs/)",
            "[OneMap API](https://www.onemap.gov.sg/docs/)",
@@ -192,8 +190,6 @@ We are considering the following factors to determine the resale price of HDB
 -   Area of the Unit
 
 -   Age of Unit
-
--   Storey-Floor
 
 ### Locational Factors
 
@@ -281,7 +277,7 @@ We will be using the `filter()` function of dplyr to select our flat_types and d
 
 ```{r}
 rs_subset <-  filter(resale,flat_type == "4 ROOM") %>% 
-              filter(month >= "2021-01" & month <= "2022-12")
+              filter(month >= "2021-01" & month <= "2023-02")
 ```
 
 ### Glimpse
@@ -341,6 +337,14 @@ rs_transform <- rs_transform %>%
   mutate(rs_transform, remaining_lease_mths = rowSums(rs_transform[, c("remaining_lease_yr", "remaining_lease_mth")])) %>%
   select(month, town, address, block, street_name, flat_type, storey_range, floor_area_sqm, flat_model, 
          lease_commence_date, remaining_lease_mths, resale_price)
+```
+
+## 2.4 Calculating Age of Unit
+
+We need to find the age of the units, which we will do so by subtracting the respective lease_commence_date (in yyyy format) from the current year. We will then convert it into months for uniformity.
+
+```{r}
+rs_transform$unit_age_mths <- (2023 - rs_transform$lease_commence_date) * 12
 ```
 
 ## 2.4 Retrieval of Address
@@ -441,9 +445,9 @@ coords[(is.na(coords$postal) | is.na(coords$latitude) | is.na(coords$longitude) 
 
 From the above message, we can see that the postal code of 215 CHOA CHU KANG CTRL is missing. Upon searching it up online, we can see that the postal code is 680215.
 
-### ![](images/image-27940901.png)
+![](images/image-27940901.png)
 
-2.4.4 Combine Resale and Coordinates Data
+### 2.4.4 Combine Resale and Coordinates Data
 
 We will now use the left_join() function of dplyr package combine the successfully retrieved coordinates with out transformed resale dataset.
 
@@ -463,7 +467,7 @@ head(rs_coords)
 
 ### 
 
-2.4.5 Handling NIL data
+### 2.4.5 Handling NIL data
 
 We now need to add the postal code of 215 CHOA CHU KANG CTRL. Since we can see from the below code, the postal code is not in integer, but in character, we will be replacing the NIL with the postal code in character type.
 
@@ -486,6 +490,7 @@ rs_coords[(is.na(rs_coords$postal) | is.na(rs_coords$latitude) | is.na(rs_coords
 Since, our subset resale dataset is now complete with the coordinates, we can save it into a rds file to prevent running the `GET()` function multiple times.
 
 ```{r}
+#| eval: false
 rs_coords_rds <- write_rds(rs_coords, "data/rds/rs_coords.rds")
 ```
 
@@ -557,7 +562,7 @@ hawker_sf <- st_read("data/geospatial/hawker-centres-geojson.geojson")
 kindergartens_sf <- st_read("data/geospatial/KINDERGARTENS.shp") 
 mrt_sf <- st_read("data/geospatial/lta-mrt-station-exit-geojson.geojson")
 privateInst_sf <- st_read("data/geospatial/CPE_PEI_PREMISES.shp")
-parks_sf <- st_read("data/geospatial/parks.kml")
+parks_sf <- st_read("data/geospatial/NATIONALPARKS.shp")
 preschools_sf <- st_read("data/geospatial/PRESCHOOLS_LOCATION.shp")
 supermarket_sf <- st_read("data/geospatial/SUPERMARKETS.shp") 
 
@@ -903,7 +908,7 @@ rs_coords_sf <- get_prox(rs_coords_sf, shopping_sf, "PROX_ShoppingMalls")
 
 ### 
 
-3.2.3 Good Primary Schools
+### 3.2.3 Primary Schools
 
 First lets read the CSV file containing all the schools in Singapore.
 
@@ -1085,6 +1090,7 @@ rs_coords_sf <- get_prox(rs_coords_sf, goodprischl_sf, "PROX_GoodPriSchls")
 Now that we our resale subset data is complete with all the locational factors, we can now save it into an rds file.
 
 ```{r}
+#| eval: false
 rs_factors_rds <- write_rds(rs_coords_sf, "data/rds/rs_factors.rds")
 ```
 
@@ -1137,14 +1143,6 @@ rs_sf <- read_rds("data/rds/rs_factors.rds")
 glimpse(rs_sf)
 ```
 
-```{r}
-rs_sf <- read_rds("data/rds/rs_factors.rds")
-```
-
-```{r}
-glimpse(rs_sf)
-```
-
 As we take a deeper look into our sf, we can see that the column name **storey_range** has data in characters with each value being in a range. Hence, this data can be a **categorical variable**! (Categorical variables represent types of data which may be divided into groups).
 
 When categorical variables are used in regression analysis, they need to be carefully used as regression models require numerical input variables to make predictions. Hence categorical variables (storey_range in our case) can't be use directly. It needs to be transformed into numerical variables using encoding techniques like dummy coding or one-hot code encoding.
@@ -1184,11 +1182,553 @@ Now lets drop the unrequired columns and only select the required columns necess
 
 ```{r}
 rs_req <- rs_sf %>%
-  select(resale_price, floor_area_sqm, storey_order, remaining_lease_mths,
-         PROX_BusStops, PROX_ChildCare, PROX_Dengue, PROX_ElderCare, PROX_Gym,
+  select(month, resale_price, floor_area_sqm, storey_order, remaining_lease_mths, unit_age_mths, PROX_BusStops, PROX_ChildCare, PROX_Dengue, PROX_ElderCare, PROX_Gym,
          PROX_HawkerCentre, PROX_Kindergartens, PROX_PrivateInstitutes, PROX_Parks, PROX_PreSchools, PROX_Supermarket, Within_350M_Kindergarten, Within_350M_ChildCare, Within_350M_BusStops, Within_1KM_PreSchools, Within_1KM_PrivateInstitute, PROX_CBD, PROX_ShoppingMalls, Within_1KM_PriSchl, PROX_GoodPriSchls, PROX_MRT)
 ```
 
 ```{r}
 summary(rs_req)
 ```
+
+Now lets write this into a rds file for easier access of data
+
+```{r}
+#| eval: fals
+resale_final <- write_rds(rs_req, "data/rds/resale_final.rds")
+```
+
+# 6.0 Exploratory Data Analysis
+
+## 6.1 Plot Historgram of Resale Prices
+
+```{r}
+ggplot(data=rs_req, aes(x=`resale_price`)) +
+  geom_histogram(bins=20, color="black", fill="light coral") +
+  labs(title = "Distribution of 4-Room Resale Prices",
+       x = "Resale Prices",
+       y = "Frequency")
+```
+
+From the above graph, we can see that the graph is skewed to the right, implying that more HDB units were sold at relative lower prices. Majority of the HDBs were sold around \$500,000.
+
+## 6.2 Plotting multiple histogram distribution of variables
+
+### 6.2.1 Structural Factors
+
+Extract the following columns names to plot - Area of the unit, Floor Level, Remaining Lease, Age of the unit
+
+```{r}
+s_factor <- c("floor_area_sqm", "storey_order", "remaining_lease_mths", "unit_age_mths")
+```
+
+Now lets create a function which will create a vector `s_factor_hist_list` of the size of our structural factors. The function will then plot a histogram for each structural factor and append it to the vector.
+
+```{r}
+s_factor_hist_list <- vector(mode = "list", length = length(s_factor))
+for (i in 1:length(s_factor)) {
+  hist_plot <- ggplot(rs_req, aes_string(x = s_factor[[i]])) +
+    geom_histogram(color="firebrick", fill = "light coral") +
+    labs(title = s_factor[[i]]) +
+    theme(plot.title = element_text(size = 10),
+          axis.title = element_blank())
+  
+  s_factor_hist_list[[i]] <- hist_plot
+}
+```
+
+Now, lets run the function and plot the histrograms for our structural factors!
+
+```{r}
+ggarrange(plotlist = s_factor_hist_list,
+          ncol = 2,
+          nrow = 2)
+```
+
+*From the above results, we can see that -*
+
+-   *Only the `floor_area_sqm` resembles a normal distribution*
+
+-   *`storey_order` is left skewed. This means that there are higher resale in HDBs in this periods for flats on lower storeys.*
+
+-   *`remaining_lease_mths` is right skewed with the 3 peaks near 700, 900 and 1100 months. This suggests that there are generally 3 clusters of resale HDBs that are transacted with 62 years, 75 years and 91 years remaining, with the 3rd cluster having the highest number of resale HDBs.*
+
+-   *unit_age_mths also has 3 peaks near 100, 300 and 450 months. This suggests that there are generally 3 clusters of resale HDBs that are trasacted at the age of 8, 25 and 37.5 years, with the first cluster (8 years) having the highest number of resale HDBs.*
+
+### 6.2.2 Locational Factors
+
+Extract the following columns names to plot -
+
+```{r}
+l_factor <- c("PROX_BusStops", "PROX_ChildCare", "PROX_Dengue", "PROX_ElderCare", "PROX_Gym", "PROX_HawkerCentre", "PROX_Kindergartens", "PROX_MRT", "PROX_PrivateInstitutes", "PROX_Parks", "PROX_PreSchools", "PROX_Supermarket", "PROX_CBD", "PROX_ShoppingMalls", "PROX_GoodPriSchls", "Within_350M_Kindergarten", "Within_350M_ChildCare", "Within_350M_BusStops", "Within_1KM_PreSchools", "Within_1KM_PrivateInstitute", "Within_1KM_PriSchl")
+```
+
+Now lets create a function which will create a vector `l_factor_hist_list` of the size of our locational factors. The function will then plot a histogram for each locational factor and append it to the vector.
+
+```{r}
+l_factor_hist_list <- vector(mode = "list", length = length(l_factor))
+for (i in 1:length(l_factor)) {
+  hist_plot <- ggplot(rs_req, aes_string(x = l_factor[[i]])) +
+    geom_histogram(bins=30, color="midnight blue", fill = "light sky blue") +
+    labs(title = l_factor[[i]]) +
+    theme(plot.title = element_text(size = 10),
+          axis.title = element_blank())
+  
+  l_factor_hist_list[[i]] <- hist_plot
+}
+```
+
+Now, lets run the function and plot the histrograms for our locational factors!
+
+```{r}
+ggarrange(plotlist = l_factor_hist_list,
+          ncol = 3,
+          nrow = 4)
+```
+
+*From the above plots, we can see that*
+
+-   *PROX_BusStops, PROX_ChildCare, PROX_Dengue, PROX_ElderCare, PROX_Gym, PROX_HawkerCentre, PROX_MRT, PROX_PrivateInstitutes, PROX_PreSchools, PROX_Supermarkets, PROX_ShoppingMalls are right skewed distribution.*
+
+-   *PROX_Parks, PROX_Kindergartens is normally distributed.*
+
+-   *PROX_CBD is a little left skewed.*
+
+-   *PROX_GoodPriSchls has 2 peaks. This means that there are 2 clusters of resale HDBs that are transacted at a proximity of 3 and 6 Primary Schools with more resale HDBs transacted with a proximity of 6 Primary Schools.*
+
+-   *Within_350M_Kindergartens is right skewed with highest cluster at 1 school near the resale HDBs.*
+
+-   *Within_350M_Childcare and Within_350M_BusStops, Within_1KM_PreSchools and Within_1KM_PriSchl are normally distributed.*
+
+-   *Within_1KM_PrivateInstitute is left skewed distribution.*
+
+**ELABORATE AND EXPLAIN PROPERLYY!!!!**
+
+## 6.3 Statistical Point Map
+
+```{r}
+tmap_mode("view")
+tm_shape(rs_sf) +  
+  tm_dots(col = "resale_price",
+          alpha = 0.6,
+          style="quantile") +
+  tm_view(set.zoom.limits = c(11,14)) +
+tm_basemap("OpenStreetMap")
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+*From the interactive map, we can see that 4 room HDBs in the Central and Northeast region seem to have higher resale prices, as indicated by the darker orange points. This is in comparison to the lighter yellow points concentrated around the North and West area.*
+
+# 7.0 Prepping for Predictive Model
+
+## 7.1 Reading Data File into RDS and Sampling
+
+```{r}
+resale_final <- read_rds("data/rds/resale_final.rds")
+```
+
+Now we need to split the data into training and testing data sets. For our assignment, our training data is 1st January 2022 to 31st December 2022 while our training data is data between January and February 2023. I have reduce the training data set due to high computation power it requires.
+
+```{r}
+train_data <- resale_final %>% filter(month >= "2022-01" & month <= "2022-12")
+test_data <- resale_final %>% filter(month >= "2023-01" & month <= "2023-02")
+```
+
+```{r}
+#| eval: fals
+write_rds(train_data, "data/rds/train_data.rds")
+write_rds(test_data, "data/rds/test_data.rds")
+```
+
+## 7.2 Computing Correlation Matrix
+
+Before loading the predictors into a predictive model, it is always a good practice to use correlation matrix to examine if there is sign of multicolinearity.
+
+```{r}
+resale_nogeo <- resale_final %>%
+  st_drop_geometry()
+corrplot::corrplot(cor(resale_nogeo[, 2:17]), 
+                   diag = FALSE, 
+                   order = "AOE",
+                   tl.pos = "td", 
+                   tl.cex = 0.5, 
+                   method = "number", 
+                   type = "upper")
+```
+
+*The correlation matrix shows that the correlation value between* `PROX_PreSchools` *and* `PROX_Childcare` *is 0.88 \> 0.8 which indicate a high positive correlation. This could be because some childcare centers may be considered as Pre_Schools. Hence, we will drop* '`PROX_ChildCare`'.
+
+*Further, the correlation matrix shows that the correlation value* `unit_age_mths` *and remaining_lease_mths is -1.0. This is because remaining_lease_mths is basically unit_age_mths subtracted from lease period amount allowed. Hence, they are negatively correlated as when Age of Unit increases, the Remaining Lease period will decrease. Hence, we will drop* `unit_age_mths`.
+
+# 8.0 Non-Spatial Multiple Linear Regression
+
+First lets retrieve the stored data
+
+```{r}
+train_data <- read_rds("data/rds/train_data.rds")
+test_data <- read_rds("data/rds/test_data.rds")
+```
+
+A non-spatial Multiple Linear Regression (MLR) model is a conventional OLS (Ordinary Least Squares) method. The model is used to analyze the linear relationship between a dependent variable and multiple independent variables in a non-spatial setting. OLS is one of the most commonly used methods to estimate the parameters in MLR, where the goal is to minimize the sum of the squared differences between the observed and predicted values of the dependent variable. The use of OLS in non-spatial MLR assumes that the residuals are independent and identically distributed (IID), and the model assumptions, such as linearity, normality, and homoscedasticity, hold.
+
+Now lets prepare the Publication Quality Table using olsrr method.
+
+```{r}
+#| eval: false
+price_mlr <- lm(resale_price ~ floor_area_sqm +
+                  storey_order + remaining_lease_mths + PROX_BusStops + 
+                  PROX_Dengue + PROX_ElderCare + PROX_Gym +
+         PROX_HawkerCentre + PROX_Kindergartens + PROX_PrivateInstitutes + PROX_Parks + PROX_PreSchools + PROX_Supermarket + Within_350M_Kindergarten + Within_350M_ChildCare + Within_350M_BusStops + Within_1KM_PreSchools + Within_1KM_PrivateInstitute + PROX_CBD + PROX_ShoppingMalls + Within_1KM_PriSchl + PROX_GoodPriSchls + PROX_MRT,
+                data=train_data)
+summary(price_mlr)
+```
+
+Lets write the data into a RDS file to save the output.
+
+```{r}
+#| eval: false
+write_rds(price_mlr, "data/rds/price_mlr.rds")
+```
+
+```{r}
+price_mlr <- read_rds("data/rds/price_mlr.rds")
+```
+
+Now lets looks at the results.
+
+```{r}
+ols_regress(price_mlr)
+```
+
+We will now use the [tbl_regression()](https://cran.r-project.org/web/packages/gtsummary/vignettes/tbl_regression.html) function of gtsummary package. The function takes a regression model in R and returns a formatted table of regression model results that is publication-ready. It is a simple way to summarize and present your analysis results using R!
+
+```{r}
+tbl_regression(price_mlr, intercept = TRUE)
+```
+
+*The coefficients represent the amount of change in the dependent variable (resale_price) for each unit change in the corresponding independent variable, while holding all other variables constant. When the coefficient is positive, it means that there is a positive linear relationship between the dependent variable and the independent variable. For example, the coefficient for floor_area_sqm is positive, it means that as the floor area of a property increases, the resale price also tends to increase.*
+
+*When the coefficient is negative, it means that there is a negative linear relationship between the dependent variable and the independent variable. For example, when the coefficient for PROX_MRT is negative, it means that as the proximity to MRT increases, the resale price tends to decrease.*
+
+*However, this is only significant if the p-value \< 0.05. Every independent variable except for PROX_BusStops, PROX_PreSchools, Within_350M_Kindergarten, PROX_ShoppingMalls are insignificant.*
+
+## 8.1 Test for signs of **multicolinearity**
+
+```{r}
+ols_vif_tol(price_mlr)
+```
+
+*Since the VIF of the independent variables are less than 10. We can safely conclude that there are no sign of multicollinearity among the independent variables.*
+
+## 8.2 Test for **Non-Linearity**
+
+```{r}
+ols_plot_resid_fit(price_mlr)
+```
+
+*The figure above reveals that most of the data points are scattered around the 0 line, hence we can safely conclude that the relationships between the resale price and independent variables are linear.*
+
+## 8.3 Test for **Normality Assumption**
+
+```{r}
+ols_plot_resid_hist(price_mlr)
+```
+
+*The figure reveals that the residual of the multiple linear regression model (i.e. price_mlr) resembles normal distribution.*
+
+## 8.4 Predicting by using Test Data
+
+We will use predict() function to predict the resale value by using the test data and price_mlr model calibrated earlier.
+
+```{r}
+#| eval: false
+mlr_pred <- predict(price_mlr, 
+                    newdata = test_data, 
+                    interval = 'confidence')
+```
+
+Lets save the output into a rds file
+
+```{r}
+#| eval: false
+MLR_pred <- write_rds(mlr_pred, "data/rds/mlr_pred.rds")
+```
+
+The output of the `predict()` is a vector of predicted values. So lets convert it into a data frame for further visualisation and analysis.
+
+```{r}
+MLR_pred <- read_rds("data/rds/mlr_pred.rds")
+MLR_pred_df <- as.data.frame(MLR_pred)
+```
+
+Lets append the predicted values into test data
+
+```{r}
+test_data_mlr <- cbind(test_data, MLR_pred_df)
+```
+
+```{r}
+#| eval: false
+write_rds(test_data_mlr, "data/rds/test_data_mlr.rds")
+```
+
+## 8.5 Calculating Root Mean Square Error
+
+The root mean square error (RMSE) allows us to measure how far predicted values are from observed values in a regression analysis.
+
+```{r}
+glimpse(test_data_mlr)
+```
+
+```{r}
+rmse(test_data_mlr$resale_price, 
+     test_data_mlr$fit)
+```
+
+## 8.6 Visualising the Predicted Values
+
+Lets plot a scatterplot to visualise the actual resale price and the predicted resale price.
+
+```{r}
+ggplot(data = test_data_mlr,
+       aes(x = fit,
+           y = resale_price)) +
+  geom_point()
+```
+
+# 9.0 GWR Predictive Method
+
+We will now calibrate a model to predict HDB resale price by using geographically weighted regression method of [**GWmodel**](https://cran.r-project.org/web/packages/GWmodel/) package.
+
+## 9.1 Converting sf dataframe to SpatialPointDataframe
+
+```{r}
+train_data_sp <- as_Spatial(train_data)
+train_data_sp
+```
+
+## 9.2 Computing Adaptive Bandwidth
+
+We will use `bw.gwr()` of **GWmodel** package to determine the optimal bandwidth to be used.
+
+```{r}
+#| eval: false
+price_bwAdapt <- bw.gwr(resale_price ~ floor_area_sqm +
+                  storey_order + remaining_lease_mths + PROX_BusStops + 
+                  PROX_Dengue + PROX_ElderCare + PROX_Gym +
+         PROX_HawkerCentre + PROX_Kindergartens + PROX_PrivateInstitutes + PROX_Parks + PROX_PreSchools + PROX_Supermarket + Within_350M_Kindergarten + Within_350M_ChildCare + Within_350M_BusStops + Within_1KM_PreSchools + Within_1KM_PrivateInstitute + PROX_CBD + PROX_ShoppingMalls + Within_1KM_PriSchl + PROX_GoodPriSchls + PROX_MRT,
+                data=train_data_sp,
+                approach="CV",
+                kernel="gaussian",
+                adaptive=TRUE,
+                longlat=FALSE)
+summary(price_bwAdapt)
+```
+
+![CV Result](images/Screenshot%202023-03-25%20160940.png){fig-align="center"}
+
+The result shows that 61 meters will be the optimal bandwidth to be used if adaptive bandwidth is used for this data set as the smallest CV score is adaptive bandwidth: 61.
+
+Now lets save the output into a rds file so that we don't have to run this computing intensive code again.
+
+```{r}
+#| eval: false
+write_rds(price_bwAdapt, "data/rds/price_bwAdapt.rds")
+```
+
+## 9.3 Construct the Adaptive Bandwidth GWR Model
+
+First, let us call the save bandwidth by using the code chunk below.
+
+```{r}
+price_bwAdapt <- read_rds("data/rds/price_bwAdapt.rds")
+```
+
+Now, lets calibrate the gwr-based hedonic pricing model by using adaptive bandwidth and Gaussian kernel as shown in the code chunk below.
+
+```{r}
+#| eval: false
+price_gwrAdapt <- gwr.basic(formula = resale_price ~ floor_area_sqm +
+                  storey_order + remaining_lease_mths + PROX_BusStops + 
+                  PROX_Dengue + PROX_ElderCare + PROX_Gym +
+         PROX_HawkerCentre + PROX_Kindergartens + PROX_PrivateInstitutes + PROX_Parks + PROX_PreSchools + PROX_Supermarket + Within_350M_Kindergarten + Within_350M_ChildCare + Within_350M_BusStops + Within_1KM_PreSchools + Within_1KM_PrivateInstitute + PROX_CBD + PROX_ShoppingMalls + Within_1KM_PriSchl + PROX_GoodPriSchls + PROX_MRT,
+                data=train_data_sp,
+                bw = price_bwAdapt,
+                kernel="gaussian",
+                adaptive=TRUE,
+                longlat=FALSE)
+summary(price_gwrAdapt)
+```
+
+Now lets write the output into a rds file so that we don't have to re-run the above code all the time.
+
+```{r}
+#| eval: false
+write_rds(price_gwrAdapt, "data/rds/price_gwrAdapt.rds")
+```
+
+Now lets view the model output.
+
+```{r}
+price_gwrAdapt <- read_rds("data/rds/price_gwrAdapt.rds")
+price_gwrAdapt
+```
+
+**HOW DO I EXPLAIN THISSS RESULTT???? IDKK!?!?!?!?!?!!?**
+
+## 9.4 Preparing Coordinates Data
+
+### 9.4.1 Extracting coordinates data
+
+Now lets extract the x,y coordinates of the full, training and test data sets.
+
+```{r}
+coords <- st_coordinates(resale_final)
+coords_train <- st_coordinates(train_data)
+coords_test <- st_coordinates(test_data)
+```
+
+Lets write the output into a rds file for future reference
+
+```{r}
+#| eval: false
+coords_train <- write_rds(coords_train, "data/rds/coords_train.rds" )
+coords_test <- write_rds(coords_test, "data/rds/coords_test.rds" )
+```
+
+### 9.4.2 Dropping Geometry Field
+
+We will now drop geometry column of the sf data.frame by using `st_drop_geometry()` of sf package.
+
+```{r}
+train_data <- train_data %>% 
+  st_drop_geometry()
+```
+
+## 9.5 Calibrating Geographical Random Forest Model
+
+We will now calibrate a model, using the training data to predict HDB resale price by calibrating a geographic random forest model.
+
+Before we begin with that, we need to first find the bandwidth.
+
+```{r}
+#| eval: false
+price_bw <- grf.bw(formula = resale_price ~ floor_area_sqm +
+                  storey_order + remaining_lease_mths + PROX_BusStops + 
+                  PROX_Dengue + PROX_ElderCare + PROX_Gym +
+         PROX_HawkerCentre + PROX_Kindergartens + PROX_PrivateInstitutes + PROX_Parks + PROX_PreSchools + PROX_Supermarket + Within_350M_Kindergarten + Within_350M_ChildCare + Within_350M_BusStops + Within_1KM_PreSchools + Within_1KM_PrivateInstitute + PROX_CBD + PROX_ShoppingMalls + Within_1KM_PriSchl + PROX_GoodPriSchls + PROX_MRT,
+                data=train_data,
+                kernel="adaptive",
+                coords=coords_train)
+```
+
+![](images/Screenshot%202023-03-25%20182112.png){fig-align="center"}
+
+Based on the above output, we can see that the bandwidth for the Geographical Random Forest Model should be 556.
+
+```{r}
+#| eval: false
+set.seed(1234)
+price_gwRFadapt <- grf(formula = resale_price ~ floor_area_sqm +
+                  storey_order + remaining_lease_mths + PROX_BusStops + 
+                  PROX_Dengue + PROX_ElderCare + PROX_Gym +
+         PROX_HawkerCentre + PROX_Kindergartens + PROX_PrivateInstitutes + PROX_Parks + PROX_PreSchools + PROX_Supermarket + Within_350M_Kindergarten + Within_350M_ChildCare + Within_350M_BusStops + Within_1KM_PreSchools + Within_1KM_PrivateInstitute + PROX_CBD + PROX_ShoppingMalls + Within_1KM_PriSchl + PROX_GoodPriSchls + PROX_MRT,
+                dframe=train_data,
+                ntree = 30,
+                bw = 556,
+                kernel="adaptive",
+                coords=coords_train)
+```
+
+```{r}
+#| eval: false
+write_rds(price_gwRFadapt, "data/rds/price_gwRFadapt.rds")
+```
+
+**HOWW DOO I EXPLAIN THIS RESULLTT???**
+
+```{r}
+price_gwRFadapt <- read_rds("data/rds/price_gwRFadapt.rds")
+```
+
+## 9.6 Predicting by using Test Data
+
+First, lets combine the test data with its corresponding coordinates data.
+
+```{r}
+test_data <- cbind(test_data, coords_test) %>%
+  st_drop_geometry()
+```
+
+Now, we will use predict.grf() function to predict the resale value by using the test data and price_gwRFadapt model calibrated earlier.
+
+```{r}
+#| eval: false
+gwRF_pred <- predict.grf(price_gwRFadapt, 
+                           test_data, 
+                           x.var.name="X",
+                           y.var.name="Y", 
+                           local.w=1,
+                           global.w=0)
+```
+
+Lets save the output into a rds file so that we don't have to re-run above code chunk again.
+
+```{r}
+#| eval: false
+GRF_pred <- write_rds(gwRF_pred, "data/rds/GRF_pred.rds")
+```
+
+The output of the `predict.grf()` is a vector of predicted values. So lets convert it into a data frame for further visualisation and analysis.
+
+```{r}
+GRF_pred <- read_rds("data/rds/GRF_pred.rds")
+GRF_pred_df <- as.data.frame(GRF_pred)
+```
+
+Lets append the predicted values onto test_data.
+
+```{r}
+test_data_p <- cbind(test_data, GRF_pred_df)
+```
+
+```{r}
+#| eval: false
+write_rds(test_data_p, "data/rds/test_data_p.rds")
+```
+
+## 9.7 Calculating Root Mean Square Error
+
+The root mean square error (RMSE) allows us to measure how far predicted values are from observed values in a regression analysis.
+
+```{r}
+glimpse(test_data_p)
+```
+
+```{r}
+rmse(test_data_p$resale_price, 
+     test_data_p$GRF_pred)
+```
+
+## 9.8 Visualising the Predicted Values
+
+Lets plot a scatterplot to visualise the actual resale price and the predicted resale price.
+
+```{r}
+ggplot(data = test_data_p,
+       aes(x = GRF_pred,
+           y = resale_price)) +
+  geom_point()
+```
+
+# 10.0 Comparing OLS and GWR Method
+
+**WHAT DO I DOO????? I AM SO CLUELESSSS!!!!**
+
+OLS assumes that the relationship between dependent and independent variable is constant throughout the area, whereas, GWR allows for the relationship between the variables to vary across the space. Further, OLS assumes that the residuals are independent and indetically distributed (IID). However, spatial data often violates the IID assumption because neighbouring observations are often correlated. This is where GWR comes in as it is specifically designed to account for spatial diependence by considering the local neighbourhood around each observation.
+
+# Acknowledgement
+
+Thank you Prof Kam and Senior NOR AISYAH BINTE AJIT for providing all the resources and guidance!

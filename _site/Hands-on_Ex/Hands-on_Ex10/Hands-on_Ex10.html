@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-03-20">
+<meta name="dcterms.date" content="2023-03-22">
 
 <title>IS415-GAA - Hands-On Excercise 10 : Modelling Geographical Accessibility</title>
 <style>
@@ -290,7 +290,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#computing-sam-accessibility" id="toc-computing-sam-accessibility" class="nav-link" data-scroll-target="#computing-sam-accessibility">6.1 Computing SAM accessibility</a></li>
   <li><a href="#visualising-sams-accessibility" id="toc-visualising-sams-accessibility" class="nav-link" data-scroll-target="#visualising-sams-accessibility">6.2 Visualising SAM’s accessibility</a></li>
   <li><a href="#statistical-graphic-visualisation-2" id="toc-statistical-graphic-visualisation-2" class="nav-link" data-scroll-target="#statistical-graphic-visualisation-2">6.3 Statistical Graphic Visualisation</a></li>
-  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1"></a></li>
+  <li><a href="#computing-distance-matrix-optional" id="toc-computing-distance-matrix-optional" class="nav-link" data-scroll-target="#computing-distance-matrix-optional">Computing Distance Matrix (optional)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -311,7 +311,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 20, 2023</p>
+      <p class="date">March 22, 2023</p>
     </div>
   </div>
   
@@ -332,7 +332,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 package 'ggstatsplot' successfully unpacked and MD5 sums checked
 
 The downloaded binary packages are in
-    C:\Users\Mayuri Salunke\AppData\Local\Temp\Rtmpo3rq4H\downloaded_packages</code></pre>
+    C:\Users\Mayuri Salunke\AppData\Local\Temp\Rtmpqs5qr0\downloaded_packages</code></pre>
 </div>
 </div>
 </section>
@@ -651,8 +651,17 @@ The code chunk below calculates Hansen’s accessibility using <em>ac()</em> of 
 </div>
 </div>
 </section>
-<section id="section-1" class="level2">
-<h2 class="anchored" data-anchor-id="section-1"></h2>
+<section id="computing-distance-matrix-optional" class="level2">
+<h2 class="anchored" data-anchor-id="computing-distance-matrix-optional">Computing Distance Matrix (optional)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>eldercare_coord <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(eldercare)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>hexagon_coord <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(hexagons)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>EcuMatrix <span class="ot">&lt;-</span> SpatialAcc<span class="sc">::</span><span class="fu">distance</span>(hexagon_coord,</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>                                  eldercare_coord,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">type=</span><span class="st">"euclidean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
 </section>

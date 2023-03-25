@@ -303,4 +303,15 @@ ggplot(data=hexagon_SAM,
              size=2)
 ```
 
-## 
+## Computing Distance Matrix (optional)
+
+```{r}
+eldercare_coord <- st_coordinates(eldercare)
+hexagon_coord <- st_coordinates(hexagons)
+```
+
+```{r}
+EcuMatrix <- SpatialAcc::distance(hexagon_coord,
+                                  eldercare_coord,
+                                  type="euclidean")
+```
