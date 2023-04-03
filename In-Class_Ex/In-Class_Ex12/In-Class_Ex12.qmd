@@ -8,7 +8,7 @@ execute:
 editor: visual
 ---
 
-# Getting Started 
+# Getting Started
 
 ```{r}
 pacman::p_load(tmap, sf, sp, stplanr, 
